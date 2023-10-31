@@ -102,7 +102,7 @@ module chess_engine(
             if (board[coordX][coordY][2:0] == PAWN) begin
             
             end
-            if (board[coordX][coordY][2:0] == BISHOP) begin
+            if (board[coordX][coordY][2:0] == BISHOP) begin // done
                 for (i = 0; i <= 7; i = i + 1) begin
                     for (j = 0; j <= 7; j = j + 1) begin
                         // Calculate the horizontal and vertical differences
@@ -111,7 +111,58 @@ module chess_engine(
                         
                         // Both difference must be equal
                         if (h_delta == v_delta) begin
-                            
+                            if (h_delta < 0 && v_delta < 0) begin   // diagonally up left
+                                if (blocked[4] == 0) begin // previous path not blocked yet
+                                    if (board[i][j][2:0] == 0) begin // ntg at target location
+                                        avail_moves[i][j] = 1;
+                                    end
+                                    else begin // block by a piece
+                                        blocked[4] = 1;
+                                        if (board[i][j][3] != player) begin // if is opponent piece, still viable move
+                                            avail_moves[i][j] = 1;
+                                        end
+                                    end
+                                end
+                            end
+                            if (h_delta > 0 && v_delta < 0) begin   // diagonally up right
+                                if (blocked[5] == 0) begin // previous path not blocked yet
+                                    if (board[i][j][2:0] == 0) begin // ntg at target location
+                                        avail_moves[i][j] = 1;
+                                    end
+                                    else begin // block by a piece
+                                        blocked[5] = 1;
+                                        if (board[i][j][3] != player) begin // if is opponent piece, still viable move
+                                            avail_moves[i][j] = 1;
+                                        end
+                                    end
+                                end
+                            end
+                            if (h_delta < 0 && v_delta > 0) begin   // diagonally down left
+                                if (blocked[6] == 0) begin // previous path not blocked yet
+                                    if (board[i][j][2:0] == 0) begin // ntg at target location
+                                        avail_moves[i][j] = 1;
+                                    end
+                                    else begin // block by a piece
+                                        blocked[6] = 1;
+                                        if (board[i][j][3] != player) begin // if is opponent piece, still viable move
+                                            avail_moves[i][j] = 1;
+                                        end
+                                    end
+                                end
+                            end
+                            if (h_delta > 0 && v_delta > 0) begin   // diagonally down right
+                                if (blocked[7] == 0) begin // previous path not blocked yet
+                                    if (board[i][j][2:0] == 0) begin // ntg at target location
+                                        avail_moves[i][j] = 1;
+                                    end
+                                    else begin // block by a piece
+                                        blocked[7] = 1;
+                                        if (board[i][j][3] != player) begin // if is opponent piece, still viable move
+                                            avail_moves[i][j] = 1;
+                                        end
+                                    end
+                                end
+                            end                         
                         end
                     end
                 end
