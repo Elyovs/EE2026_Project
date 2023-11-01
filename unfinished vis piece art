@@ -1,0 +1,126 @@
+`timescale 1ns / 1ps
+
+
+
+module art(
+    input CLOCK, 
+    input [8:0]x_coord, y_coord,
+    input [12:0] pix_index,
+    input [15:0] colour,
+    input [2:0]state,
+    output reg [15:0] oled_data
+    );
+    
+    
+    reg [5:0] chess_board [7:0][7:0]; 
+ 
+    wire [7:0] x;
+    wire [6:0] y;        
+    assign x = pix_index%96;
+    assign y = pix_index/96;
+    
+    
+    
+    // parameters for the pieces or empty based on the input
+    parameter EMPTY = 3'b000;
+    parameter PAWN = 3'b001;
+    parameter BISHOP = 3'b010;
+    parameter KNIGHT = 3'b011;
+    parameter ROOK = 3'b100;
+    parameter QUEEN = 3'b101;
+    parameter KING = 3'b110;
+    
+
+    always @ (posedge CLOCK)
+    begin
+    
+    if (state == EMPTY && ((x >= x_coord || x < x_coord + 8) && (y >= y_coord || y < y_coord + 8)) )
+    begin 
+        if ((((y_coord <= 7) || (y_coord >= 16 && y_coord < 24) || (y_coord >= 32 && y_coord < 40) || (y_coord >= 48 && y < 56)) && 
+            ((x_coord >= 16 && x_coord < 24) || (x_coord >= 32 && x_coord < 40) || (x_coord >= 48 && x_coord < 56) || (x_coord >= 64 && x_coord < 72))) ||
+            (((y_coord >= 8 && y_coord < 16) || (y_coord >= 24 && y_coord < 32) || ( y_coord >= 40 && y_coord < 48) || (y_coord >= 56)) &&
+            ((x_coord >= 24 && x_coord < 32) || ( x_coord >= 40 && x_coord < 48) || (x_coord >= 56 && x_coord < 64) || (x_coord >= 72 && x_coord < 80))) )
+       begin
+            oled_data <= 16'b10010_010011_00010; //changing the square back to black (brown)
+       end
+    
+        else begin
+            oled_data <= 16'b11111_111111_11111;    //white
+        end
+     end
+    
+
+    if (state == PAWN && 
+        ((x == 66) || (y == 20)))  // i try to just do this but it still gives a complete black square(the x and y values correspond to the test values i put
+//        (((y == y_coord + 1) && (x == x_coord + 3 || x == x_coord + 4)) || 
+//        ((y == y_coord + 2) && (x >= x_coord + 2 && x <= x_coord + 5)) ||
+//        ((y == y_coord + 3) && (x >= x_coord + 2 && x <= x_coord + 5)) ||
+//        ((y >= y_coord + 4 && y <= y_coord + 6) && (x == x_coord + 3 || x == x_coord + 4)) ||
+//        ((y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6))) )
+        begin 
+            oled_data <= colour;
+        end
+    
+    if (state == BISHOP &&
+       ( ((y == y_coord + 1) && (x == x_coord + 3 || x == x_coord + 4)) ||
+         ((y == y_coord + 2) && (x >= x_coord + 2 && x <= x_coord + 5)) ||
+         ((y == y_coord + 3) && ((x >= x_coord + 1 && x <= x_coord + 4) || x == x_coord + 6)) ||
+         ((y == y_coord + 4) && ((x >= x_coord + 1 && x <= x_coord + 3) || x == x_coord + 5 || x == x_coord + 6)) ||
+         ((y == y_coord + 5 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
+         ((y == y_coord + 6) && (x >= x_coord + 2 && x <= x_coord + 5)) ))
+    begin
+        oled_data <= colour;
+    end 
+    
+    if (state == ROOK &&
+       ( ((y == y_coord + 1) && (x == x_coord + 1 || x == x_coord + 3 || x == x_coord + 4 || x == x_coord + 6)) ||
+         ((y == y_coord + 2 || y == y_coord + 3 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
+         ((y == y_coord + 4 || y == y_coord + 5) && (x == x_coord + 3 || x == x_coord + 4)) ||
+         ((y == y_coord + 6) && (x >= x_coord + 2 && x <= x_coord + 5)) ))
+    begin
+        oled_data <= colour;
+    end
+    
+    if (state == KNIGHT &&
+       ( ((y == y_coord + 1) && (x == x_coord + 3)) ||
+         ((y == y_coord + 2) && (x == x_coord >= 2 && x == x_coord <= 5)) ||
+         ((y == y_coord + 3) && (x == x_coord + 1 || (x >= x_coord + 3 && x <= x_coord + 6))) ||
+         ((y == y_coord + 4 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
+         ((y == y_coord + 5) && (x == x_coord + 1 || (x >= x_coord + 4 && x <= x_coord + 6))) ||
+         ((y == y_coord + 6) && (x >= x_coord + 3 && x <= x_coord + 5)) ))
+     begin
+        oled_data <= colour;
+     end
+     
+     if (state == QUEEN &&
+        ( ((y == y_coord + 1 || y == y_coord + 5) && (x == x_coord + 3 || x == x_coord + 4)) ||
+          ((y == y_coord + 2 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
+          ((y == y_coord + 3 || y == y_coord + 4) && (x == x_coord + 1 || x == x_coord + 3 || x == x_coord + 4 || x == x_coord + 6)) ||
+          ((y == y_coord + 5) && (x >= x_coord + 2 && x <= x_coord + 5)) ))
+     begin
+        oled_data <= colour;
+     end
+
+    
+    if (state == KING && 
+       ( ((y == y_coord + 1 || y == y_coord + 3 || y == y_coord + 4) &&
+               (x == x_coord + 1 || x == x_coord + 3 || x == x_coord + 4 || x == x_coord + 6)) ||
+         ((y == y_coord + 5 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
+         ((y == y_coord + 6) && (x >= x_coord + 2 && x <= x_coord + 5)) ))
+     begin
+        oled_data <= colour;
+     end
+       
+   
+        
+        
+        
+    end
+
+ endmodule
+    
+   
+
+    
+    
+  
