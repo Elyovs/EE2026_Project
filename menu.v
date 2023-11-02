@@ -47,11 +47,10 @@ module menu(
         dp <= 1'b1;
         start <= 0;
         player <= 0;
-//        JA[0] <= 0;
         JA[1] <= 0;
     end
     
-//    // OLED Display
+    // OLED Display
     wire [31:0] count_6p25 = 7;
     wire clk_6p25;
     flexible_clock clk6p25m (.basys_clk(clock), .count_in(count_6p25), .out_clk(clk_6p25));
@@ -77,10 +76,6 @@ module menu(
 //            .vccen(JC[6]),
 //            .pmoden(JC[7])
 //        );
-    
-//    //TEST 2 min clock
-//    wire clk_2m;
-//    clock_2_min clk2m (.clock(clock), .clk_2m(clk_2m));
     
     //SEVEN SEGMENT CLOCK
     wire [31:0] count_0p005s = 249_999;
@@ -145,12 +140,9 @@ module menu(
     reg [31:0] count_2s = 0;
     
     reg [31:0] count_seg_2 = 0;
-//    reg [2:0] player = 0;
     
     reg [2:0] toggle_code = 0;
     reg [31:0] count_0p5s = 0;
-    
-//    reg start = 0;
     
     always @ (posedge clk_6p25)
     begin
@@ -332,11 +324,10 @@ module menu(
     
         //PLAYER
         player <= (start == 0) ? sw[15] : player;
-//        JA[0] <= sw[15];
         JA[0] <= player;
         
         //only player 1 can start the game
-//        if (btnC && player == 0)
+        //if btnC is presed && player 1 && other board player 2
         if (btnC && player == 0 && JB[0] == 1)
         begin
             start <= 1;
@@ -346,8 +337,8 @@ module menu(
         led[9] <= JB[1];
         led[10] <= JA[1];
         //change start status for player 2
+        //if player 2 && start == 1 && the other board player 1
         if (player == 1 && JB[1] == 1 && JB[0] == 0)
-//        if (JB[1] == 1)
         begin
             start <= 1;
         end
