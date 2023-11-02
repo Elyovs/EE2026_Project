@@ -29,9 +29,15 @@
 //sw15 to switch between player 1 and player 2
 //sw15 == 0 player 1, sw15 == 1 player 2
 
+//JB[0] -> JA[0] PLAYER : 0 - player 1, 1 - player 2
+//JB[1] -> JA[1] START BOOL : 0 - not ready/start, 1 - ready/start
+
 module menu(
-    input clock, input [15:0] sw, 
-    output [7:0] JC, output reg [6:0] seg, output reg [15:0] led, output reg [3:0] an, output reg dp
+    input clock, input [15:0] sw, input btnC, input [1:0] JB,
+    output [7:0] JC, output reg [6:0] seg, output reg [15:0] led, 
+    output reg [3:0] an, output reg dp, output reg [1:0] JA,
+    input [12:0] pix_index, output reg [15:0] oled_data,
+    output reg start, player
 );
     initial
     begin
@@ -39,34 +45,40 @@ module menu(
         led <= 16'b0000000000000000;
         an <= 4'b1111;
         dp <= 1'b1;
+        start <= 0;
+        player <= 0;
     end
     
-    // OLED Display
+//    // OLED Display
     wire [31:0] count_6p25 = 7;
     wire clk_6p25;
     flexible_clock clk6p25m (.basys_clk(clock), .count_in(count_6p25), .out_clk(clk_6p25));
     
-    wire frame_beg, send_pix, sample_pix;
-    reg [15:0] oled_data;
-    wire [12:0] pix_index;
+//    wire frame_beg, send_pix, sample_pix;
+//    reg [15:0] oled_data;
+//    wire [12:0] pix_index;
     
 
-    Oled_Display unit_oled_A (
-            .clk(clk_6p25), 
-            .reset(0), 
-            .frame_begin(frame_beg), 
-            .sending_pixels(send_pix),
-            .sample_pixel(sample_pix), 
-            .pixel_index(pix_index), 
-            .pixel_data(oled_data), 
-            .cs(JC[0]), 
-            .sdin(JC[1]), 
-            .sclk(JC[3]), 
-            .d_cn(JC[4]), 
-            .resn(JC[5]), 
-            .vccen(JC[6]),
-            .pmoden(JC[7])
-        );
+//    Oled_Display unit_oled_A (
+//            .clk(clk_6p25), 
+//            .reset(0), 
+//            .frame_begin(frame_beg), 
+//            .sending_pixels(send_pix),
+//            .sample_pixel(sample_pix), 
+//            .pixel_index(pix_index), 
+//            .pixel_data(oled_data), 
+//            .cs(JC[0]), 
+//            .sdin(JC[1]), 
+//            .sclk(JC[3]), 
+//            .d_cn(JC[4]), 
+//            .resn(JC[5]), 
+//            .vccen(JC[6]),
+//            .pmoden(JC[7])
+//        );
+    
+    //TEST 2 min clock
+    wire clk_2m;
+    clock_2_min clk2m (.clock(clock), .clk_2m(clk_2m));
     
     //SEVEN SEGMENT CLOCK
     wire [31:0] count_0p005s = 249_999;
@@ -131,11 +143,12 @@ module menu(
     reg [31:0] count_2s = 0;
     
     reg [31:0] count_seg_2 = 0;
-    reg [2:0] player = 0;
+//    reg [2:0] player = 0;
     
     reg [2:0] toggle_code = 0;
     reg [31:0] count_0p5s = 0;
     
+//    reg start = 0;
     
     always @ (posedge clk_6p25)
     begin
@@ -316,7 +329,23 @@ module menu(
     begin
     
         //PLAYER
-        player <= sw[15];
+        player <= (start == 0) ? sw[15] : player;
+//        JA[0] <= sw[15];
+        JA[0] <= player;
+        
+        //only player 1 can start the game
+//        if (btnC && player == 0)
+        if (btnC && player == 0 && JB[0] == 1)
+        begin
+            start <= 1;
+            JA[1] <= 1;
+        end
+        
+        //change start status for player 2
+        if (player == 1 && JB[1] == 1)
+        begin
+            start <= 1;
+        end
         
         //START CODE: 206
         if (sw[14:0] == 15'b000000000000100 && count_pass == 0)
