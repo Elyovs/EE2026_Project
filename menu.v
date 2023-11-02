@@ -342,8 +342,10 @@ module menu(
             start <= 1;
             JA[1] <= 1;
         end
+        led[8] <= JB[0];
+        led[9] <= JB[1];
         //change start status for player 2
-        if (player == 1 && JB[1] == 1)
+        if (player == 1 && JB[1] == 1 && JB[0] == 0)
 //        if (JB[1] == 1)
         begin
             start <= 1;
