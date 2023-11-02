@@ -47,7 +47,7 @@ module menu(
         dp <= 1'b1;
         start <= 0;
         player <= 0;
-        JA[0] <= 0;
+//        JA[0] <= 0;
         JA[1] <= 0;
     end
     
@@ -343,8 +343,8 @@ module menu(
             JA[1] <= 1;
         end
         //change start status for player 2
-//        if (player == 1 && JB[1] == 1)
-        if (JB[1] == 1)
+        if (player == 1 && JB[1] == 1)
+//        if (JB[1] == 1)
         begin
             start <= 1;
         end
