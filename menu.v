@@ -47,6 +47,8 @@ module menu(
         dp <= 1'b1;
         start <= 0;
         player <= 0;
+        JA[0] <= 0;
+        JA[1] <= 0;
     end
     
 //    // OLED Display
@@ -76,9 +78,9 @@ module menu(
 //            .pmoden(JC[7])
 //        );
     
-    //TEST 2 min clock
-    wire clk_2m;
-    clock_2_min clk2m (.clock(clock), .clk_2m(clk_2m));
+//    //TEST 2 min clock
+//    wire clk_2m;
+//    clock_2_min clk2m (.clock(clock), .clk_2m(clk_2m));
     
     //SEVEN SEGMENT CLOCK
     wire [31:0] count_0p005s = 249_999;
@@ -340,9 +342,9 @@ module menu(
             start <= 1;
             JA[1] <= 1;
         end
-        
         //change start status for player 2
-        if (player == 1 && JB[1] == 1)
+//        if (player == 1 && JB[1] == 1)
+        if (JB[1] == 1)
         begin
             start <= 1;
         end
