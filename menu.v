@@ -344,6 +344,7 @@ module menu(
         end
         led[8] <= JB[0];
         led[9] <= JB[1];
+        led[10] <= JA[1];
         //change start status for player 2
         if (player == 1 && JB[1] == 1 && JB[0] == 0)
 //        if (JB[1] == 1)
@@ -355,16 +356,19 @@ module menu(
         if (sw[14:0] == 15'b000000000000100 && count_pass == 0)
         begin
             count_pass <= 1;
+            JA[1] <= 0;
         end
         
         if (sw[14:0] == 15'b000000000000101 && count_pass == 1)
         begin
             count_pass <= 2;
+            JA[1] <= 0;
         end
         
         if(sw[14:0] == 15'b000000001000101 && count_pass == 2)
         begin
             count_pass <= 3;
+            JA[1] <= 0;
         end
             
         if (count_pass == 0) led[14:0] <= 16'b0000000000000000; 
