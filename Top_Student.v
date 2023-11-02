@@ -92,7 +92,7 @@ module Top_Student (
         else
         begin
         //board code
-            oled_data <= 0;
+            oled_data <= 16'b11111_111111_11111;
         end
     end
     
