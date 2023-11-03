@@ -20,21 +20,33 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module player_turn_2_min(input clock, btnC, output reg [1:0] led);
+module player_turn_2_min(input clock, btnC, output reg [2:0] led);
     
-    reg [31:0] count = 0;
-    reg [31:0] count_6 = 0;
-    reg clk_2m = 0;
-    wire [31:0] count_2d6m = 1_000_000_000;
-    reg reset_s = 0;
-    reg reset_l = 0;
+    reg [31:0] count;
+    reg [31:0] count_6;
+    reg [1:0] clk_2m;
+    wire [31:0] count_2d6m = 49_999_999;
+    reg [1:0] reset_s = 0;
+    reg [1:0] reset_l = 0;
+    
+    reg [1:0] player = 0;
+    reg [1:0] end_game = 0;
+    
+    initial begin
+        count <= 0;
+        count_6 <= 0;
+        clk_2m <= 0;
+    end
     
     always @ (posedge clock) begin
         if (btnC) 
         begin
             reset_s <= 1;
             reset_l <= 1;
+            player <= ~player;
         end
+        
+        count <= (count == count_2d6m) ? 0 : count + 1;
         
         if (count == count_2d6m || reset_s)
         begin
@@ -51,13 +63,20 @@ module player_turn_2_min(input clock, btnC, output reg [1:0] led);
         
         if (count == count_2d6m)
         begin
-            count_6 <= (count_6 == 6) ? 0 : count_6 + 1;
+            count_6 <= (count_6 == 240) ? 0 : count_6 + 1;
+            clk_2m <= (count_6 == 240) ? ~clk_2m : clk_2m;
         end
         
-        clk_2m <= (count_6 == 6) ? ~clk_2m : clk_2m;
+        if (clk_2m)
+        begin
+            end_game <= 1;
+        end 
         
-        led[0] <= clk_2m;   //led toggle every 1 minute
-                            //on - off - on -> 2 min
+//        led[1] <= clk_2m;   //led toggle every 1 minute
+//                            //on - off - on -> 2 min
+        led[0] <= ~player;
+        led[1] <= player;
+        led[2] <= end_game; //end game when 2 min passed
         
     end
     
