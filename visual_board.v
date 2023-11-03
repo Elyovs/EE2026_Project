@@ -22,17 +22,44 @@
 
 
 module board_art (
-    input clock, 
+    input clock, player,
     input [5:0]old_x, old_y, new_x, new_y, 
     input [1:0]colour, //0 for white, 1 for black
     input [2:0] state, 
     input [12:0] pix_index,
     input [63:0] in_avail_array,
-    output reg [15:0] oled_data
-   // output reg [15:0] led
+    output reg [15:0] oled_data,
+    inout PS2Clk, inout PS2Data,
+    output reg [15:0] led
 );
 
+//__________________________________________________________________
+    //mouse
+    wire [11:0] x_pos, y_pos;
+    wire [3:0] z_pos;
+    wire [2:0] lmr;
+    wire n_event;
     
+    MouseCtl mouse1(
+        .clk(clock), 
+        .rst(0), 
+        .value(0), 
+        .setx(0), 
+        .sety(0), 
+        .setmax_x(0), 
+        .setmax_y(0), 
+        .xpos(x_pos),
+        .ypos(y_pos),
+        .zpos(z_pos),
+        .left(lmr[2]),
+        .middle(lmr[1]),
+        .right(lmr[0]),
+        .new_event(n_event),
+        .ps2_clk(PS2Clk),
+        .ps2_data(PS2Data)
+    );
+//__________________________________________________________________    
+
      parameter EMPTY = 3'b000;
      parameter PAWN = 3'b001;
      parameter BISHOP = 3'b010;
@@ -51,6 +78,13 @@ module board_art (
      parameter BLACK_SQ = 16'b10010_010011_00010;       //it's brown
      parameter WHITE_SQ = 16'b11111_111111_11111;       //it's white
      parameter AVAIL_SQ = 16'b11110_111111_00010;        //it flashes yellow when it's available
+     
+     //_______________________________________________________________
+     parameter BLACK_CURSOR = 16'b00000_000000_00000;
+     parameter LIGHT_BLUE = 16'b01111_110111_10111;
+     
+     reg cursor_x, cursor_y;
+     //____________________________________________________________
      
     
      //reg [3:0] chess_board [7:0][7:0];
@@ -206,7 +240,14 @@ module board_art (
                count_x <= (count_x >= 7) ? 0 : count_x + 1;
            end
            
-           b <= (((count_y + 1) * 8) + count_x); 
+           //______________________________________________________________________
+           //board visual for player 1 and 2 - rotation
+           if (player == 0) //player 1
+           begin
+                b <= (((count_y + 1) * 8) + count_x);
+           end
+           else b <= 63 - (((count_y + 1) * 8) + count_x);  //player 2
+           //______________________________________________________________________
            
 //           if (chess_board[b] == {BLACK, AVAILABLE} && ((x >= x_coord || x < x_coord + 8) && (y >= y_coord || y < y_coord + 8)) )
 //           begin
@@ -214,6 +255,19 @@ module board_art (
 //               flash_colour <= (counter == 0) ? ~flash_colour : flash_colour;
 //               counter <= (counter >= 25_000_000) ? 0 : counter + 1;
 //           end
+           
+           //mouse cursor
+            if (((x >= x_pos - 1 && x <= x_pos + 1) && y == y_pos) || 
+                (x == x_pos && (y >= y_pos - 1 && y <= y_pos + 1)))
+            begin
+                oled_data <= LIGHT_BLUE;
+            end
+            
+            else if ((x == x_pos - 1 && (y == y_pos - 1 || y == y_pos + 1)) ||
+                (x == x_pos + 1 && (y == y_pos - 1 || y == y_pos + 1)))
+            begin
+                oled_data <= BLACK_CURSOR;
+            end
            
            
           if (chess_board[b] == {BLACK, PAWN} && 
@@ -355,9 +409,74 @@ module board_art (
                     end
                 end           
            
+           //__________________________________________________________________________
+                if(lmr[2] && x_pos >= 17 && x_pos <= 24 && y_pos >= 0 && y_pos <= 63) 
+                begin
+                    cursor_x <= 0;
+                end
+                
+                if(lmr[2] && x_pos >= 25 && x_pos <= 32 && y_pos >= 0 && y_pos <= 63) 
+                begin
+                    cursor_x <= 1;
+                end
+                if(lmr[2] && x_pos >= 33 && x_pos <= 40 && y_pos >= 0 && y_pos <= 63) 
+                begin
+                    cursor_x <= 2;
+                end
+                if(lmr[2] && x_pos >= 41 && x_pos <= 48 && y_pos >= 0 && y_pos <= 63)
+                begin
+                    cursor_x <= 3;
+                end
+                if(lmr[2] && x_pos >= 49 && x_pos <= 56 && y_pos >= 0 && y_pos <= 63)
+                begin
+                    cursor_x <= 4;
+                end
+                if(lmr[2] && x_pos >= 57 && x_pos <= 64 && y_pos >= 0 && y_pos <= 63) 
+                begin
+                    cursor_x <= 5;
+                end
+                if(lmr[2] && x_pos >= 65 && x_pos <= 72 && y_pos >= 0 && y_pos <= 63)
+                begin
+                    cursor_x <= 6;
+                end
+                if(lmr[2] && x_pos >= 73 && x_pos <= 80 && y_pos >= 0 && y_pos <= 63) 
+                begin
+                    cursor_x <= 7;
+                end
+                
+                if(lmr[2] && y_pos >= 0 && y_pos <= 7 && x_pos >=17 && x_pos <= 80) 
+                begin
+                    cursor_y <= 0;
+                end
+                if(lmr[2] && y_pos >= 8 && y_pos <= 15 && x_pos >=17 && x_pos <= 80) 
+                begin
+                    cursor_y <= 1;
+                end
+                if(lmr[2] && y_pos >= 16 && y_pos <= 23 && x_pos >=17 && x_pos <= 80) 
+                begin
+                    cursor_y <= 2;
+                end                
+                if(lmr[2] && y_pos >= 24 && y_pos <= 31 && x_pos >=17 && x_pos <= 80) 
+                begin
+                    cursor_y <= 3;
+                end                
+                if(lmr[2] && y_pos >= 32 && y_pos <= 39 && x_pos >=17 && x_pos <= 80) 
+                begin
+                    cursor_y <= 4;
+                end                
+                if(lmr[2] && y_pos >= 40 && y_pos <= 47 && x_pos >=17 && x_pos <= 80) 
+                begin
+                    cursor_y <= 5;
+                end                
+                if(lmr[2] && y_pos >= 48 && y_pos <= 55 && x_pos >=17 && x_pos <= 80) 
+                begin
+                    cursor_y <= 6;
+                end                
+                if(lmr[2] && y_pos >= 56 && y_pos <= 63 && x_pos >=17 && x_pos <= 80) 
+                begin
+                    cursor_y <= 7;
+                end                
+           //____________________________________________________________________________
            end
-           
 
 endmodule
-           
-        
