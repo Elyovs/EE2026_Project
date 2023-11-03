@@ -235,7 +235,7 @@ module board_art (
      
      parameter BLACK_SQ = 16'b10010_010011_00010;       //it's brown
      parameter WHITE_SQ = 16'b11111_111111_11111;       //it's white
-     parameter AVAIL_SQ = 16'b11111_101101_1100;        //it flashes pink when it's available
+     parameter AVAIL_SQ = 16'b11011_011101_10001;        //it flashes pink when it's available
      
     
      reg [3:0] chess_board [7:0][7:0];
