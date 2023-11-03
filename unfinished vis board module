@@ -1,328 +1,185 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-//// Company: 
-//// Engineer: 
- 
-//// Create Date: 27.10.2023 11:43:42
-//// Design Name: 
-//// Module Name: pieces_art
-//// Project Name: 
-//// Target Devices: 
-//// Tool Versions: 
-//// Description: 
- 
-//// Dependencies: 
- 
-//// Revision:
-//// Revision 0.01 - File Created
-//// Additional Comments:
- 
+// Company: 
+// Engineer: 
+// 
+// Create Date: 02.11.2023 18:13:05
+// Design Name: 
+// Module Name: test_module
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module board_art (
-    input clock,
-    input old_x, old_y, new_x, new_y,
-    input [2:0] state,
-    input [1:0] colour, //0 for white, 1 for black
-    input [63:0] in_avail_arary,
-    input [12:0] pix_index,
-    output reg oled_data
+module test_module(
+    input clock, 
+    output [7:0] JC,
+    input [3:0] sw,
+    output reg [15:0] led
+   
+   // inout PS2Clk, inout PS2Data
+    );
+    
+    wire fb, sp, samp;    
+    reg [15:0] oled_data = 16'b00000_000000_00000;    
+    wire [12:0] pix_index;
+    wire [7:0] x;
+    wire [6:0] y;
+   
+    wire [31:0] count_6p25 = 7;
+    wire clk_6p25;
+    flexible_clock clk6p25m (clock, count_6p25, clk_6p25); 
+   
+    Oled_Display oled_data_A (
+        .clk(clk_6p25),         
+        .reset(0), 
+        .frame_begin(fb),         
+        .sending_pixels(sp),
+        .sample_pixel(samp),         
+        .pixel_index(pix_index), 
+        .pixel_data(oled_data),         
+        .cs(JC[0]), 
+        .sdin(JC[1]), 
+        .sclk(JC[3]),         
+        .d_cn(JC[4]), 
+        .resn(JC[5]),         
+        .vccen(JC[6]),
+        .pmoden(JC[7])    
     );
 
+    //mouse
+//        wire [11:0] x_pos, y_pos;
+//        wire [3:0] z_pos;
+//        wire [2:0] lmr;
+//        wire n_event;
     
-     parameter EMPTY = 3'b000;
-     parameter PAWN = 3'b001;
-     parameter BISHOP = 3'b010;
-     parameter KNIGHT = 3'b011;  
-     parameter ROOK = 3'b100;
-     parameter QUEEN = 3'b101;
-     parameter KING = 3'b110;
-     parameter AVAILABLE = 3'b111;
-     
-     parameter WHITE = 1'b0;
-     parameter BLACK = 1'b1;
-     
-     parameter BLACK_PIECE = 16'b00000_000000_00000;    //it's black
-     parameter WHITE_PIECE = 16'b11010_110101_11010;    // it's grey
-     
-     parameter BLACK_SQ = 16'b10010_010011_00010;       //it's brown
-     parameter WHITE_SQ = 16'b11111_111111_11111;       //it's white
-     parameter AVAIL_SQ = 16'b11111_101101_1100;        //it flashes pink when it's available
-     
+//    MouseCtl mouse1(
+//        .clk(clock), 
+//        .rst(0), 
+//        .value(0), 
+//        .setx(0), 
+//        .sety(0), 
+//        .setmax_x(0), 
+//        .setmax_y(0), 
+//        .xpos(x_pos),
+//        .ypos(y_pos),
+//        .zpos(z_pos),
+//        .left(lmr[2]),
+//        .middle(lmr[1]),
+//        .right(lmr[0]),
+//        .new_event(n_event),
+//        .ps2_clk(PS2Clk),
+//        .ps2_data(PS2Data)
+//    );
+        
+        
+    assign x = pix_index%96;
+    assign y = pix_index/96;
     
-     reg [3:0] chess_board [7:0][7:0];
-     reg [3:0]i;
-     reg [3:0]j;
-     
-     wire [12:0] x, y;
-     idxToCoord idxToCoord_unit (pix_index, x, y);
-     
-     reg[8:0] x_coord, y_coord;
-     
-     reg black_square = 0;
-     
-     
-     //setting up the 2d array
-     initial begin
-     for (i = 0; i <= 7; i = i+ 1)
-     begin
-        for (j = 0; j <= 7; j = j + 1)
-        begin
+    parameter BLACK = 16'b00000_000000_00000;
+    parameter LIGHT_BLUE = 16'b01111_110111_10111;
+    
+    
+    // testing 
+    reg colour = 1'b0;
+    reg [2:0] state = 3'b010;
+    wire [5:0]old_x = 2;
+    wire [5:0]old_y = 1;
+    wire [5:0]new_x = 6;
+    wire [5:0]new_y = 3;
+    wire [63:0]avail_array = 64'b00000000_00000000_00000000_00000000_00000010_10000000_00000000_00000000;
+    wire [15:0]oled_data_board;
+    
+     board_art visuals(
+        .clock(clock), 
+        .old_x(old_x), 
+        .old_y(old_y), 
+        .new_x(new_x), 
+        .new_y(new_y), 
+        .state(state), 
+        .colour(colour), 
+        .in_avail_array(avail_array), 
+        .pix_index(pix_index), 
+        .oled_data(oled_data_board)
+    );
+    
         
-            if (i >= 2 && i <= 5)
-            begin
-                chess_board[i][j][2:0] <= EMPTY;
-            end
-            
-            if (i == 1)
-            begin
-                chess_board[i][j][2:0] <= PAWN;  
-                chess_board[i][j][3] <= BLACK;
-            end
-            
-            if (i == 6)
-            begin
-                chess_board[i][j][2:0] <= PAWN; //white
-                chess_board[i][j] <= WHITE;
-            end
-            
-            if (i == 0)
-            begin
-                if (j == 0 || j == 7)
-                begin
-                    chess_board[i][j][2:0] <= ROOK;
-                    chess_board[i][j][3] <= BLACK;
-                end
-                
-                if (j == 1 || j == 6)
-                begin
-                    chess_board[i][j][2:0] <= KNIGHT;
-                    chess_board[i][j][3] <= BLACK;
-                end
-                
-                if (j == 3 || j == 5)
-                begin
-                    chess_board[i][j][2:0] <= BISHOP;
-                    chess_board[i][j][3] <= BLACK;
-                end
-                
-                if (j == 4)
-                begin
-                    chess_board[i][j][2:0] <= KING;
-                    chess_board[i][j][3] <= BLACK;
-                end
-                
-                if (j == 5)
-                begin
-                    chess_board[i][j][2:0] <= QUEEN;
-                    chess_board[i][j][3] <= BLACK;
-                end
-              end
-               
-           if (i == j)
-           begin
-               if (j == 0 || j == 7)
-               begin
-                   chess_board[i][j][2:0] <= ROOK;
-                   chess_board[i][j][3] <= WHITE;
-               end
-               
-               if (j == 1 || j == 6)
-               begin
-                   chess_board[i][j][2:0] <= KNIGHT;
-                   chess_board[i][j][3] <= WHITE;
-               end
-               
-               if (j == 3 || j == 5)
-               begin
-                   chess_board[i][j][2:0] <= BISHOP;
-                   chess_board[i][j][3] <= WHITE;
-               end
-               
-               if (j == 4)
-               begin
-                   chess_board[i][j][2:0] <= KING;
-                   chess_board[i][j][3] <= WHITE;
-               end
-                
-               if (j == 5)
-               begin
-                   chess_board[i][j][2:0] <= QUEEN;
-                   chess_board[i][j][3] <= WHITE;
-               end
-             end
-             
-         end
-        end
-      end
-      
-      integer avail_x = 0;
-      integer avail_y = 0;
-      integer c;
-      reg [63:0]avail_array = 0;
-      
-      //updating the new square
-      always @ (posedge clock)
-      begin
-        chess_board[old_y][old_x][2:0] <= EMPTY;
-        chess_board[new_y][new_x][2:0] <= state;
-        chess_board[new_y][new_x][3] <= colour;
-        
-        avail_array <= in_avail_arary;
-        for (c = 0; c < 64; c = c + 1)
-        begin
-            if (avail_array[c] == 1)
-            begin
-                avail_x <= (c % 8);
-                avail_y <= (c / 64) * 8;
-                chess_board[avail_x][avail_y][2:0] <= AVAILABLE;
-            end
-         end
-      end
-       
-       
-       reg [26:0]counter = 1;
-       reg [1:0]flash_colour = 0;
-       //drawing the pieces
-       always @ (posedge clock)
-       begin
-       
-       for (i = 0; i <= 7; i = i+ 1)
-       begin
-          for (j = 0; j <= 7; j = j + 1)
-          begin
-            x_coord <= (j * 8 + 16);
-            y_coord <= (i * 8);
-            
-            if (chess_board[i][j][2:0] == AVAILABLE && ((x >= x_coord || x < x_coord + 8) && (y >= y_coord || y < y_coord + 8)) )
-            begin
-                oled_data <= (flash_colour) ? AVAIL_SQ : ((i + j) % 2 == 0) ? WHITE_SQ : BLACK_SQ;
-                flash_colour <= (counter == 0) ? ~flash_colour : flash_colour;
-                counter <= (counter >= 25_000_000) ? 0 : counter + 1;
-            end
+    always @ (posedge clock) begin    
+      //mouse cursor
+//    if (((x >= x_pos - 1 && x <= x_pos + 1) && y == y_pos) || 
+//        (x == x_pos && (y >= y_pos - 1 && y <= y_pos + 1)))
+//    begin
+//        oled_data <= LIGHT_BLUE;
+//    end
+    
+//    else if ((x == x_pos - 1 && (y == y_pos - 1 || y == y_pos + 1)) ||
+//        (x == x_pos + 1 && (y == y_pos - 1 || y == y_pos + 1)))
+//    begin
+//        oled_data <= BLACK;
+//    end
 
-             if (chess_board[i][j][2:0] == PAWN && 
-                    (((y == y_coord + 1) && (x == x_coord + 3 || x == x_coord + 4)) || 
-                    ((y == y_coord + 2) && (x >= x_coord + 2 && x <= x_coord + 5)) ||
-                    ((y == y_coord + 3) && (x >= x_coord + 2 && x <= x_coord + 5)) ||
-                    ((y >= y_coord + 4 && y <= y_coord + 6) && (x == x_coord + 3 || x == x_coord + 4)) ||
-                    ((y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6))) )
-                     begin
-                        if (chess_board[i][j][3] == BLACK)
-                        begin
-                            oled_data <= BLACK_PIECE;
-                        end
-                        else begin
-                            oled_data <= WHITE_PIECE;
-                        end
-             end
-             
-             else if (chess_board[i][j][2:0] == ROOK &&
-                    ( ((y == y_coord + 1) && (x == x_coord + 1 || x == x_coord + 3 || x == x_coord + 4 || x == x_coord + 6)) ||
-                    ((y == y_coord + 2 || y == y_coord + 3 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
-                    ((y == y_coord + 4 || y == y_coord + 5) && (x == x_coord + 3 || x == x_coord + 4)) ||
-                    ((y == y_coord + 6) && (x >= x_coord + 2 && x <= x_coord + 5)) ))
-                    begin
-                        if (chess_board[i][j][3] == BLACK)
-                        begin
-                            oled_data <= BLACK_PIECE;
-                        end
-                        else begin
-                            oled_data <= WHITE_PIECE;
-                        end 
-              end
-              
-              else if (chess_board[i][j][2:0] == BISHOP &&
-                    ( ((y == y_coord + 1) && (x == x_coord + 3 || x == x_coord + 4)) ||
-                    ((y == y_coord + 2) && (x >= x_coord + 2 && x <= x_coord + 5)) ||
-                    ((y == y_coord + 3) && ((x >= x_coord + 1 && x <= x_coord + 4) || x == x_coord + 6)) ||
-                    ((y == y_coord + 4) && ((x >= x_coord + 1 && x <= x_coord + 3) || x == x_coord + 5 || x == x_coord + 6)) ||
-                    ((y == y_coord + 5 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
-                    ((y == y_coord + 6) && (x >= x_coord + 2 && x <= x_coord + 5)) ))
-                    begin
-                        if (chess_board[i][j][3] == BLACK)
-                        begin
-                            oled_data <= BLACK_PIECE;
-                        end
-                        else begin
-                            oled_data <= WHITE_PIECE;
-                        end 
-              end
-              
-              else if (chess_board[i][j][2:0] == KNIGHT &&
-                    ( ((y == y_coord + 1) && (x == x_coord + 3)) ||
-                    ((y == y_coord + 2) && (x == x_coord >= 2 && x == x_coord <= 5)) ||
-                    ((y == y_coord + 3) && (x == x_coord + 1 || (x >= x_coord + 3 && x <= x_coord + 6))) ||
-                    ((y == y_coord + 4 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
-                    ((y == y_coord + 5) && (x == x_coord + 1 || (x >= x_coord + 4 && x <= x_coord + 6))) ||
-                    ((y == y_coord + 6) && (x >= x_coord + 3 && x <= x_coord + 5)) ))
-                    begin
-                        if (chess_board[i][j][3] == BLACK)
-                        begin
-                            oled_data <= BLACK_PIECE;
-                        end
-                        else begin
-                            oled_data <= WHITE_PIECE;
-                        end 
-              end              
-                
-                
-              else if (chess_board[i][j][2:0] == QUEEN &&
-                  (((y == y_coord + 2 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
-                  ((y == y_coord + 3 || y == y_coord + 4) && (x == x_coord + 1 || x == x_coord + 3 || x == x_coord + 4 || x == x_coord + 6)) ||
-                  ((y == y_coord + 5) && (x >= x_coord + 2 && x <= x_coord + 5)) ))
-                    begin
-                        if (chess_board[i][j][3] == BLACK)
-                        begin
-                            oled_data <= BLACK_PIECE;
-                        end
-                        else begin
-                            oled_data <= WHITE_PIECE;
-                        end 
-              end                              
-       
-       
-       
-              else if (chess_board[i][j][2:0] == KING &&
-                   ( ((y == y_coord + 1 || y == y_coord + 3 || y == y_coord + 4) &&
-                   (x == x_coord + 1 || x == x_coord + 3 || x == x_coord + 4 || x == x_coord + 6)) ||
-                   ((y == y_coord + 5 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
-                   ((y == y_coord + 6) && (x >= x_coord + 2 && x <= x_coord + 5)) ))
-                    begin
-                        if (chess_board[i][j][3] == BLACK)
-                        begin
-                            oled_data <= BLACK_PIECE;
-                        end
-                        else begin
-                            oled_data <= WHITE_PIECE;
-                        end 
-              end
-              
-                          
-              else if (((x >= x_coord || x < x_coord + 8) && (y >= y_coord || y < y_coord + 8)) )
-              begin 
-                  if (((i + j) % 2) == 0)       //if it's the row + col is even, the square is white, if it's odd it's black
-                  begin
-                      oled_data <= WHITE_SQ;
-                  end
-                  else begin
-                      oled_data <= BLACK_SQ;
-                   end
-               end
+   // else begin
+        oled_data <= oled_data_board;
+       // end
   
-       
-       end
-       end
-       end
-       
-
-
-
+//         if(lmr[2] && x_pos >= 17 && x_pos <= 24) led[0] <= 1;
+//         else led <= 0;
+//         if(lmr[2] && x_pos >= 25 && x_pos <= 32) led[1] <= 1;
+//         else led[1] <= 0;
+//         if(lmr[2] && x_pos >= 33 && x_pos <= 40) led[2] <= 1;
+//         else led[2] <= 0;
+//         if(lmr[2] && x_pos >= 41 && x_pos <= 48) led[3] <= 1;
+//         else led[3] <= 0;
+//         if(lmr[2] && x_pos >= 49 && x_pos <= 56) led[4] <= 1;
+//         else led[4] <= 0;
+//         if(lmr[2] && x_pos >= 57 && x_pos <= 64) led[5] <= 1;
+//         else led[5] <= 0;
+//         if(lmr[2] && x_pos >= 65 && x_pos <= 72) led[6] <= 1;
+//         else led[6] <= 0;
+//         if(lmr[2] && x_pos >= 73 && x_pos <= 80) led[7] <= 1;
+//         else led[7] <= 0;
+         
+//         if(lmr[2] && y_pos >= 0 && y_pos <= 7) led[8] <= 1;
+//         else led[8] <= 0;
+//         if(lmr[2] && y_pos >= 8 && y_pos <= 15) led[9] <= 1;
+//         else led[9] <= 0;
+//         if(lmr[2] && y_pos >= 16 && y_pos <= 23) led[10] <= 1;
+//         else led[10] <= 0;
+//         if(lmr[2] && y_pos >= 24 && y_pos <= 31) led[11] <= 1;
+//         else led[11] <= 0;
+//         if(lmr[2] && y_pos >= 32 && y_pos <= 39) led[12] <= 1;
+//         else led[12] <= 0;
+//         if(lmr[2] && y_pos >= 40 && y_pos <= 47) led[13] <= 1;
+//         else led[13] <= 0;
+//         if(lmr[2] && y_pos >= 48 && y_pos <= 55) led[14] <= 1;
+//         else led[14] <= 0;
+//         if(lmr[2] && y_pos >= 56 && y_pos <= 63) led[15] <= 1;
+//         else led[15] <= 0;
     
+    
+  //  oled_data <= oled_data_board;
+    end
+
+
+
 endmodule
 
+module flexible_clock(input basys_clk, input [31:0] count_in, output reg out_clk);
 
+    reg [31:0] count = 0;
+    
+    always @ (posedge basys_clk) begin
+        count <= (count == count_in) ? 0 : count + 1;
+        out_clk <= (count == 0) ? ~out_clk : out_clk;
+    end
 
-
-
+endmodule
