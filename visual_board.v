@@ -228,6 +228,15 @@ module board_art (
        reg [26:0] counter = 1;
        reg [1:0] flash_colour = 0;
        
+       wire [31:0] player_turn_screen_x = 38;   //large mid
+       wire [31:0] player_turn_screen_y = 19;   //large mid
+       wire [31:0] player_turn = 3; //small edge
+       
+       parameter P1_COLOR = 16'hf800;
+       parameter P2_COLOR = 16'h2bf;
+       parameter BORDER_COLOR = 16'b0;
+       parameter SHAPE_BACKGROUND = 16'hffff;
+       
        
        //drawing the pieces
        always @ (posedge clock)
@@ -247,7 +256,7 @@ module board_art (
                 b <= (((count_y + 1) * 8) + count_x);
            end
            else b <= 63 - (((count_y + 1) * 8) + count_x);  //player 2
-           //______________________________________________________________________
+           
            
 //           if (chess_board[b] == {BLACK, AVAILABLE} && ((x >= x_coord || x < x_coord + 8) && (y >= y_coord || y < y_coord + 8)) )
 //           begin
@@ -255,6 +264,8 @@ module board_art (
 //               flash_colour <= (counter == 0) ? ~flash_colour : flash_colour;
 //               counter <= (counter >= 25_000_000) ? 0 : counter + 1;
 //           end
+           
+           
            
            //mouse cursor
             if (((x >= x_pos - 1 && x <= x_pos + 1) && y == y_pos) || 
@@ -268,9 +279,59 @@ module board_art (
             begin
                 oled_data <= BLACK_CURSOR;
             end
+            
+            //P1 - small edge
+            else if (player == 0 && ((x >= player_turn && x <= (player_turn + 2) && y >= player_turn && y <= (player_turn + 4)) || 
+                (x >= (player_turn + 3) && x <= (player_turn + 9) && y >= player_turn && y <= (player_turn + 21))))
+            begin
+                oled_data <= P1_COLOR;
+            end
+            
+            //P2 - small edge
+            else if (player == 1 && ((x >= player_turn && x <= (player_turn + 9) && y >= player_turn && y <= (player_turn + 4)) ||
+                (x >= player_turn && x <= (player_turn + 9) && y >= (player_turn + 9) && y <= (player_turn + 12)) ||
+                (x >= player_turn && x <= (player_turn + 9) && y >= (player_turn + 17) && y <= (player_turn + 21)) ||
+                (x >= (player_turn + 5) && x <= (player_turn + 9) && y >= player_turn && y <= (player_turn + 12)) ||
+                (x >= player_turn && x <= (player_turn + 4) && y >= (player_turn + 9) && y <= (player_turn + 21))))
+            begin
+                oled_data <= P2_COLOR;
+            end
+            
+            /*
+            //P1 turns - large mid
+            else if (player == 0 && ((x == (player_turn_screen_x + 8) && y >= (player_turn_screen_y + 5) && y <= (player_turn_screen_y + 7)) ||
+                    (x >= (player_turn_screen_x + 9) && x <= (player_turn_screen_x + 11) && y >= (player_turn_screen_y + 5) && y <= (player_turn_screen_y + 21))))
+            begin
+                oled_data <= P1_COLOR;
+            end
+            
+            //P2 turns - large mid
+            else if (player == 1 && ((x >= (player_turn_screen_x + 6) && x <= (player_turn_screen_x + 14) && y >= (player_turn_screen_y + 5) && y <= (player_turn_screen_y + 7)) ||
+                    (x >= (player_turn_screen_x + 6) && x <= (player_turn_screen_x + 16) && y >= (player_turn_screen_y + 13) && y <= (player_turn_screen_y + 14)) ||
+                    (x >= (player_turn_screen_x + 6) && x <= (player_turn_screen_x + 16) && y >= (player_turn_screen_y + 19) && y <= (player_turn_screen_y + 21)) ||
+                    (x >= (player_turn_screen_x + 14) && x <= (player_turn_screen_x + 16) && y >= (player_turn_screen_y + 5) && y <= (player_turn_screen_y + 13)) ||
+                    (x >= (player_turn_screen_x + 6) && x <= (player_turn_screen_x + 8) && y >= (player_turn_screen_y + 13) && y <= (player_turn_screen_y + 19))))
+            begin
+                oled_data <= P2_COLOR;
+            end
+            
+            //border - large mid
+            else if (((x == player_turn_screen_x || x == (player_turn_screen_x + 1) || x == (player_turn_screen_x + 20) || x == (player_turn_screen_x + 21)) &&
+                    y >= player_turn_screen_y && y <= (player_turn_screen_y + 26)) || (x >= player_turn_screen_x && x <= (player_turn_screen_x + 20) &&
+                    (y == player_turn_screen_y || y == (player_turn_screen_y + 1) || y == (player_turn_screen_y + 25) || y == (player_turn_screen_y + 26))))
+            begin
+                oled_data <= BORDER_COLOR;
+            end
+            
+            //shape background color - large mid
+            else if (x >= player_turn_screen_x && x <= (player_turn_screen_x + 20) && y >= player_turn_screen_y && y <= (player_turn_screen_y + 25))
+            begin
+                oled_data <= SHAPE_BACKGROUND;
+            end
+            */
+           //______________________________________________________________________
            
-           
-          if (chess_board[b] == {BLACK, PAWN} && 
+          else if (chess_board[b] == {BLACK, PAWN} && 
               (((y == y_coord + 1) && (x == x_coord + 3 || x == x_coord + 4)) || 
               ((y == y_coord + 2) && (x >= x_coord + 2 && x <= x_coord + 5)) ||
               ((y == y_coord + 3) && (x >= x_coord + 2 && x <= x_coord + 5)) ||
@@ -412,71 +473,75 @@ module board_art (
            //__________________________________________________________________________
                 if(lmr[2] && x_pos >= 17 && x_pos <= 24 && y_pos >= 0 && y_pos <= 63) 
                 begin
-                    cursor_x <= 0;
+//                    cursor_x <= 0;
+                    cursor_x <= (player == 0) ? 0 : 7;
                 end
                 
                 if(lmr[2] && x_pos >= 25 && x_pos <= 32 && y_pos >= 0 && y_pos <= 63) 
                 begin
-                    cursor_x <= 1;
+                    cursor_x <= (player == 0) ? 1 : 6;
                 end
                 if(lmr[2] && x_pos >= 33 && x_pos <= 40 && y_pos >= 0 && y_pos <= 63) 
                 begin
-                    cursor_x <= 2;
+                    cursor_x <= (player == 0) ? 2 : 5;
                 end
                 if(lmr[2] && x_pos >= 41 && x_pos <= 48 && y_pos >= 0 && y_pos <= 63)
                 begin
-                    cursor_x <= 3;
+                    cursor_x <= (player == 0) ? 3 : 4;
                 end
                 if(lmr[2] && x_pos >= 49 && x_pos <= 56 && y_pos >= 0 && y_pos <= 63)
                 begin
-                    cursor_x <= 4;
+                    cursor_x <= (player == 0) ? 4 : 3;
                 end
                 if(lmr[2] && x_pos >= 57 && x_pos <= 64 && y_pos >= 0 && y_pos <= 63) 
                 begin
-                    cursor_x <= 5;
+                    cursor_x <= (player == 0) ? 5 : 2;
                 end
                 if(lmr[2] && x_pos >= 65 && x_pos <= 72 && y_pos >= 0 && y_pos <= 63)
                 begin
-                    cursor_x <= 6;
+                    cursor_x <= (player == 0) ? 6 : 1;
                 end
                 if(lmr[2] && x_pos >= 73 && x_pos <= 80 && y_pos >= 0 && y_pos <= 63) 
                 begin
-                    cursor_x <= 7;
+                    cursor_x <= (player == 0) ? 7 : 0;
                 end
                 
                 if(lmr[2] && y_pos >= 0 && y_pos <= 7 && x_pos >=17 && x_pos <= 80) 
                 begin
-                    cursor_y <= 0;
+//                    cursor_y <= 0;
+                    cursor_y <= (player == 0) ? 0 : 7;
                 end
                 if(lmr[2] && y_pos >= 8 && y_pos <= 15 && x_pos >=17 && x_pos <= 80) 
                 begin
-                    cursor_y <= 1;
+                    cursor_y <= (player == 0) ? 1 : 6;
                 end
                 if(lmr[2] && y_pos >= 16 && y_pos <= 23 && x_pos >=17 && x_pos <= 80) 
                 begin
-                    cursor_y <= 2;
+                    cursor_y <= (player == 0) ? 2 : 5;
                 end                
                 if(lmr[2] && y_pos >= 24 && y_pos <= 31 && x_pos >=17 && x_pos <= 80) 
                 begin
-                    cursor_y <= 3;
+                    cursor_y <= (player == 0) ? 3 : 4;
                 end                
                 if(lmr[2] && y_pos >= 32 && y_pos <= 39 && x_pos >=17 && x_pos <= 80) 
                 begin
-                    cursor_y <= 4;
+                    cursor_y <= (player == 0) ? 4 : 3;
                 end                
                 if(lmr[2] && y_pos >= 40 && y_pos <= 47 && x_pos >=17 && x_pos <= 80) 
                 begin
-                    cursor_y <= 5;
+                    cursor_y <= (player == 0) ? 5 : 2;
                 end                
                 if(lmr[2] && y_pos >= 48 && y_pos <= 55 && x_pos >=17 && x_pos <= 80) 
                 begin
-                    cursor_y <= 6;
+                    cursor_y <= (player == 0) ? 6 : 1;
                 end                
                 if(lmr[2] && y_pos >= 56 && y_pos <= 63 && x_pos >=17 && x_pos <= 80) 
                 begin
-                    cursor_y <= 7;
+                    cursor_y <= (player == 0) ? 7 : 0;
                 end                
            //____________________________________________________________________________
            end
 
 endmodule
+           
+        
