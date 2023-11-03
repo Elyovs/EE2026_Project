@@ -34,7 +34,6 @@ module test_module(
     wire [12:0] pix_index;
     wire [7:0] x;
     wire [6:0] y;
-   
     wire [31:0] count_6p25 = 7;
     wire clk_6p25;
     flexible_clock clk6p25m (clock, count_6p25, clk_6p25); 
@@ -91,13 +90,32 @@ module test_module(
     
     // testing 
     reg colour = 1'b0;
-    reg [2:0] state = 3'b010;
-    wire [5:0]old_x = 2;
-    wire [5:0]old_y = 1;
-    wire [5:0]new_x = 6;
-    wire [5:0]new_y = 3;
-    wire [63:0]avail_array = 64'b00000000_00000000_00000000_00000000_00000010_10000000_00000000_00000000;
+    reg [2:0] state = 3'b011;
+    reg [5:0]old_x = 2;
+    reg [5:0]old_y = 1;
+    reg [5:0]new_x = 6;
+    reg [5:0]new_y = 3;
+    reg [63:0]avail_array = 64'b00000000_00000000_00000000_00000000_00000010_10000000_00000000_00000000;
     wire [15:0]oled_data_board;
+    
+    reg [31:0] count_c = 1;
+    
+    always @ (posedge clock)
+    begin
+        count_c <= (count_c == 200_000_000) ? 0 : count_c + 1;
+        if (count_c == 0)
+        begin
+            state <= 3'b100;
+            old_x <= 6;
+            old_y <= 3;
+            new_x <= 4;
+            new_y <= 6;
+            colour <= 1'b0;
+            avail_array <= 64'b00000000_00000000_00010000_01000000_00000000_00000010_00000000_00000000;
+        end
+    
+    end
+    
     
      board_art visuals(
         .clock(clock), 
@@ -107,7 +125,7 @@ module test_module(
         .new_y(new_y), 
         .state(state), 
         .colour(colour), 
-        .in_avail_array(avail_array), 
+        .avail_array(avail_array), 
         .pix_index(pix_index), 
         .oled_data(oled_data_board)
     );
