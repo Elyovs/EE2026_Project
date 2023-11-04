@@ -59,7 +59,7 @@ module board_art (
         .ps2_data(PS2Data)
     );
 //__________________________________________________________________    
-
+       
      parameter EMPTY = 3'b000;
      parameter PAWN = 3'b001;
      parameter BISHOP = 3'b010;
@@ -73,11 +73,11 @@ module board_art (
      parameter BLACK = 1'b1;
      
      parameter BLACK_PIECE = 16'b00000_000000_00000;    //it's black
-     parameter WHITE_PIECE = 16'b11011_011101_10001;    // it's pink
+     parameter WHITE_PIECE = 16'b00100_110110_11101;    // it's blue
      
      parameter BLACK_SQ = 16'b10010_010011_00010;       //it's brown
      parameter WHITE_SQ = 16'b11111_111111_11111;       //it's white
-     parameter AVAIL_SQ = 16'b11110_111111_00010;        //it flashes yellow when it's available
+     parameter AVAIL_SQ = 16'b11110_111111_00010;        //it becomes yellow when it's available
      
      //_______________________________________________________________
      parameter BLACK_CURSOR = 16'b00000_000000_00000;
