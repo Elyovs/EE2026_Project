@@ -81,7 +81,7 @@ module board_art (
      
      //_______________________________________________________________
      parameter BLACK_CURSOR = 16'b00000_000000_00000;
-     parameter LIGHT_BLUE = 16'b01111_110111_10111;
+     parameter LIGHT_PINK = 16'b11011_011101_10001;
      
      reg cursor_x, cursor_y;
      //____________________________________________________________
@@ -263,7 +263,7 @@ module board_art (
             if (((x >= x_pos - 1 && x <= x_pos + 1) && y == y_pos) || 
                 (x == x_pos && (y >= y_pos - 1 && y <= y_pos + 1)))
             begin
-                oled_data <= LIGHT_BLUE;
+                oled_data <= LIGHT_PINK;
             end
             
             else if ((x == x_pos - 1 && (y == y_pos - 1 || y == y_pos + 1)) ||
