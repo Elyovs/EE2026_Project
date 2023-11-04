@@ -128,8 +128,8 @@ module chess_engine(
                     if (coordX == 6) begin  // Can move 2 steps if no block
                         avail_moves[coordX-2][coordY] = (board[coordX-1][coordY][2:0] == EMPTY) ? 1 : 0;
                     end
-                    else if (coordX > 0) begin   // Normal steps
-                        if (board[coordX-1][coordY] == EMPTY) begin
+                    if (coordX > 0) begin   // Normal steps
+                        if (board[coordX-1][coordY][2:0] == EMPTY) begin
                             avail_moves[coordX-1][coordY] = 1;
                         end
                         if (coordY > 0) begin   // Left capture
@@ -235,28 +235,44 @@ module chess_engine(
             end
             if (board[coordX][coordY][2:0] == KNIGHT) begin // need check whether blocked
                 if (coordX-2 >= 0 && coordY-1 >= 0) begin 
-                    avail_moves[coordX-2][coordY-1] = 1; 
+                    if (board[coordX-2][coordY-1][2:0] == EMPTY || board[coordX-2][coordY-1][3] != player) begin
+                        avail_moves[coordX-2][coordY-1] = 1; 
+                    end
                 end
                 if (coordX-2 >= 0 && coordY+1 <= 7) begin 
-                    avail_moves[coordX-2][coordY+1] = 1; 
+                    if (board[coordX-2][coordY+1][2:0] == EMPTY || board[coordX-2][coordY+1][3] != player) begin
+                        avail_moves[coordX-2][coordY+1] = 1; 
+                    end
                 end
                 if (coordX-1 >= 0 && coordY-2 >= 0) begin 
-                    avail_moves[coordX-1][coordY-2] = 1; 
+                    if (board[coordX-1][coordY-2][2:0] == EMPTY || board[coordX-1][coordY-2][3] != player) begin
+                        avail_moves[coordX-1][coordY-2] = 1; 
+                    end
                 end
                 if (coordX-1 >= 0 && coordY+2 <= 7) begin 
-                    avail_moves[coordX-1][coordY+2] = 1; 
+                    if (board[coordX-1][coordY+2][2:0] == EMPTY || board[coordX-1][coordY+2][3] != player) begin
+                        avail_moves[coordX-1][coordY+2] = 1; 
+                    end
                 end
                 if (coordX+1 <= 7 && coordY-2 >= 0) begin 
-                    avail_moves[coordX+1][coordY-2] = 1; 
+                    if (board[coordX+1][coordY-2][2:0] == EMPTY || board[coordX+1][coordY-2][3] != player) begin
+                        avail_moves[coordX+1][coordY-2] = 1; 
+                    end
                 end
-                if (coordX+1 <= 7 && coordY+2 <= 7) begin 
-                    avail_moves[coordX+1][coordY+2] = 1; 
+                if (coordX+1 <= 7 && coordY+2 <= 7) begin
+                    if (board[coordX+1][coordY+2][2:0] == EMPTY || board[coordX+1][coordY+2][3] != player) begin
+                        avail_moves[coordX+1][coordY+2] = 1; 
+                    end 
                 end
                 if (coordX+2 <= 7 && coordY-1 >= 0) begin 
-                    avail_moves[coordX+2][coordY-1] = 1; 
+                    if (board[coordX+2][coordY-1][2:0] == EMPTY || board[coordX+2][coordY-1][3] != player) begin
+                        avail_moves[coordX+2][coordY-1] = 1; 
+                    end
                 end
                 if (coordX+2 <= 7 && coordY+1 <= 7) begin 
-                    avail_moves[coordX+2][coordY+1] = 1; 
+                    if (board[coordX+2][coordY+1][2:0] == EMPTY || board[coordX+2][coordY+1][3] != player) begin
+                        avail_moves[coordX+2][coordY+1] = 1; 
+                    end
                 end
             end 
             
