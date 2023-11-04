@@ -14,28 +14,13 @@
 module Top_Student (
     input btnC, clock, input [15:0] sw, input [7:0] JB, 
     output [15:0] led, output [7:0] JA, JC, output [6:0] seg,
-    output [3:0] an, output dp
+    output [3:0] an, output dp,
+    inout PS2Clk, inout PS2Data
 );
 
-
-//module menu(
-//    input clock, input [15:0] sw, input btnC, input [1:0] JB,
-//    output [7:0] JC, output reg [6:0] seg, output reg [15:0] led, 
-//    output reg [3:0] an, output reg dp, output reg [1:0] JA
-//);
-//    wire [6:0] seg_in;
-//    wire [3:0] an_in;
-//    wire dp_in;
     wire start;
     wire player;
     
-//    assign seg = seg_in;
-//    assign an = an_in;
-//    assign dp = dp_in;
-    
-//    wire [31:0] count_6p25 = 7;
-//    wire clk_6p25;
-//    flexible_clock clk6p25m (.basys_clk(clock), .count_in(count_6p25), .out_clk(clk_6p25));
     
     // OLED Display
     wire [31:0] count_6p25 = 7;
@@ -47,6 +32,7 @@ module Top_Student (
     wire [12:0] pix_index;
     
     wire [15:0] oled_data_menu;
+    wire [15:0] oled_data_board;
 
     Oled_Display unit_oled_A (
         .clk(clk_6p25), 
@@ -82,17 +68,26 @@ module Top_Student (
         .player(player)
     );
     
+    board_art visuals(
+        .clock(clock), 
+        .pix_index(pix_index), 
+        .oled_data(oled_data_board),
+        .player(player),
+        .PS2Clk(PS2Clk),
+        .PS2Data(PS2Data)
+    );
+    
     always @ (posedge clk_6p25)
     begin
         if (start == 0)
         begin
+        //menu
             oled_data <= oled_data_menu;
-        //menu code
         end
         else
         begin
-        //board code
-            oled_data <= 16'b11111_111111_11111;
+        //board
+            oled_data <= oled_data_board;
         end
     end
     
