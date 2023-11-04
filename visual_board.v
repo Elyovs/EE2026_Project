@@ -27,7 +27,7 @@ module board_art (
     input [1:0]colour, //0 for white, 1 for black
     input [2:0] state, 
     input [12:0] pix_index,
-    input [63:0] in_avail_array,
+    input [63:0] avail_array,
     output reg [15:0] oled_data,
     inout PS2Clk, inout PS2Data,
     output reg [15:0] led
@@ -190,43 +190,42 @@ module board_art (
       
       integer avail_x = 0;
       integer avail_y = 0;
-      integer c;
-      reg [63:0]avail_array = 0;
+      reg [6:0]c = 0;;
       
       wire[8:0]old_b, new_b;
-        assign old_b = ((old_y * 8) + old_x);
-        assign new_b = ((new_y * 8) + new_x);
+      assign old_b = ((old_y * 8) + old_x);
+      assign new_b = ((new_y * 8) + new_x);
+      reg [63:0] bool_available = 0;
             
       
       //updating the new square
-      always @ (*)
+      always @ (posedge clock)
       begin
       
-//        chess_board[old_b][2:0] <= KING;
-//        chess_board[old_b][3] <= 0;
-//        chess_board[new_b][2:0] <= state;
-//        chess_board[new_b][3] <= 1;
-        
-//        avail_array <= in_avail_array;
-//        for (c = 0; c < 64; c = c + 1)
-//        begin
-//            if (avail_array[c] == 1)
-//            begin
-//                chess_board[c] <= {BLACK, AVAILABLE};
-//            end
-//         end
+        chess_board[old_b] <= {colour, EMPTY};
+        chess_board[new_b] <= {colour, state};
+
+        for (c = 0; c < 64; c = c + 1)
+        begin
+            if (avail_array[c] == 1)
+            begin
+                chess_board[c] <= {BLACK, AVAILABLE};
+                bool_available[c] <= 1;
+            end
+            else if (avail_array[c] == 0)
+            begin
+                bool_available[c] <= 0;
+            end
+         end
       end
        
        reg [31:0] count_x = 0;
        reg [31:0] count_y = 0;
-       reg [31:0] b = 0;
-//       assign b = ((count_y * 8) + count_x);
+       reg [31:0] b;
        
-       assign x_coord = (count_x * 8) + 17;
+       assign x_coord = (count_x * 8) + 16;
        assign y_coord = (count_y * 8);
-       
-       reg [26:0] counter = 1;
-       reg [1:0] flash_colour = 0;
+      
        
        wire [31:0] player_turn_screen_x = 38;   //large mid
        wire [31:0] player_turn_screen_y = 19;   //large mid
@@ -257,13 +256,6 @@ module board_art (
            end
            else b <= 63 - (((count_y + 1) * 8) + count_x);  //player 2
            
-           
-//           if (chess_board[b] == {BLACK, AVAILABLE} && ((x >= x_coord || x < x_coord + 8) && (y >= y_coord || y < y_coord + 8)) )
-//           begin
-//               oled_data <= (flash_colour) ? AVAIL_SQ : ((i + j) % 2 == 0) ? WHITE_SQ : BLACK_SQ;
-//               flash_colour <= (counter == 0) ? ~flash_colour : flash_colour;
-//               counter <= (counter >= 25_000_000) ? 0 : counter + 1;
-//           end
            
            
            
@@ -330,6 +322,12 @@ module board_art (
             end
             */
            //______________________________________________________________________
+
+          else if (chess_board[b] == {BLACK, AVAILABLE} && (bool_available[b] == 1) &&
+           ((x >= x_coord && x < x_coord + 8) && (y >= y_coord && y < y_coord + 8)) )  //if it's available, be yellow
+           begin
+                oled_data <= AVAIL_SQ;
+           end
            
           else if (chess_board[b] == {BLACK, PAWN} && 
               (((y == y_coord + 1) && (x == x_coord + 3 || x == x_coord + 4)) || 
@@ -397,7 +395,7 @@ module board_art (
            
           else if (chess_board[b] == {BLACK, KNIGHT} &&
                     ( ((y == y_coord + 1) && (x == x_coord + 3)) ||
-                    ((y == y_coord + 2) && (x == x_coord >= 2 && x == x_coord <= 5)) ||
+                     ((y == y_coord + 2) && (x >= x_coord + 2 && x <= x_coord + 5)) ||
                     ((y == y_coord + 3) && (x == x_coord + 1 || (x >= x_coord + 3 && x <= x_coord + 6))) ||
                     ((y == y_coord + 4 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
                     ((y == y_coord + 5) && (x == x_coord + 1 || (x >= x_coord + 4 && x <= x_coord + 6))) ||
@@ -408,7 +406,7 @@ module board_art (
            
           else if (chess_board[b] == {WHITE, KNIGHT} &&
                   ( ((y == y_coord + 1) && (x == x_coord + 3)) ||
-                  ((y == y_coord + 2) && (x == x_coord >= 2 && x == x_coord <= 5)) ||
+                   ((y == y_coord + 2) && (x >= x_coord + 2 && x <= x_coord + 5)) ||
                   ((y == y_coord + 3) && (x == x_coord + 1 || (x >= x_coord + 3 && x <= x_coord + 6))) ||
                   ((y == y_coord + 4 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
                   ((y == y_coord + 5) && (x == x_coord + 1 || (x >= x_coord + 4 && x <= x_coord + 6))) ||
@@ -419,7 +417,8 @@ module board_art (
            
            
               else if (chess_board[b] == {BLACK, QUEEN} &&
-                      (((y == y_coord + 2 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
+                      (((y == y_coord + 1 || y == y_coord + 6) && (x == x_coord + 3 || x == x_coord + 4)) ||
+                      ((y == y_coord + 2 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
                       ((y == y_coord + 3 || y == y_coord + 4) && (x == x_coord + 1 || x == x_coord + 3 || x == x_coord + 4 || x == x_coord + 6)) ||
                       ((y == y_coord + 5) && (x >= x_coord + 2 && x <= x_coord + 5)) ))
                         begin
@@ -428,7 +427,8 @@ module board_art (
            
            
               else if (chess_board[b] == {WHITE, QUEEN} &&
-                        (((y == y_coord + 2 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
+                        (((y == y_coord + 1 || y == y_coord + 6) && (x == x_coord + 3 || x == x_coord + 4)) ||
+                        ((y == y_coord + 2 || y == y_coord + 7) && (x >= x_coord + 1 && x <= x_coord + 6)) ||
                         ((y == y_coord + 3 || y == y_coord + 4) && (x == x_coord + 1 || x == x_coord + 3 || x == x_coord + 4 || x == x_coord + 6)) ||
                         ((y == y_coord + 5) && (x >= x_coord + 2 && x <= x_coord + 5)) ))
                           begin
@@ -454,9 +454,9 @@ module board_art (
                               oled_data <= WHITE_PIECE;
                       end             
            
-            else if (x < 16 || x > 80)
+             else if (x < 16 || x >= 80)
                       begin
-                        oled_data <= BLACK_PIECE;   //black
+                        oled_data <= BLACK_PIECE;   //black screen not on chessboard
                       end
                       
               else if (x >= x_coord && x < x_coord + 8 && y >= y_coord && y < y_coord + 8)
