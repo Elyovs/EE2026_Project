@@ -129,12 +129,18 @@ module chess_engine(
                         avail_moves[coordX-2][coordY] = (board[coordX-1][coordY][2:0] == EMPTY) ? 1 : 0;
                     end
                     else if (coordX > 0) begin   // Normal steps
-                        avail_moves[coordX-1][coordY] = 1;
+                        if (board[coordX-1][coordY] == EMPTY) begin
+                            avail_moves[coordX-1][coordY] = 1;
+                        end
                         if (coordY > 0) begin   // Left capture
-                            avail_moves[coordX-1][coordY-1] = (board[coordX-1][coordY-1][3] == BLACK && board[coordX-1][coordY-1][2:0] != EMPTY) ? 1 : 0;
+                            if (board[coordX-1][coordY-1][3] == BLACK && board[coordX-1][coordY-1][2:0] != EMPTY) begin
+                                avail_moves[coordX-1][coordY-1] = 1;
+                            end
                         end
                         if (coordY < 7) begin   // Right capture
-                            avail_moves[coordX-1][coordY+1] = (board[coordX-1][coordY+1][3] == BLACK && board[coordX-1][coordY-1][2:0] != EMPTY) ? 1 : 0;
+                            if (board[coordX-1][coordY+1][3] == BLACK && board[coordX-1][coordY+1][2:0] != EMPTY) begin
+                                avail_moves[coordX-1][coordY+1] = 1;       
+                            end
                         end
                     end
                 end
@@ -142,83 +148,92 @@ module chess_engine(
                     if (coordX == 1) begin  // Can move 2 steps if no block
                         avail_moves[coordX+2][coordY] = (board[coordX+1][coordY][2:0] == EMPTY) ? 1 : 0;
                     end
-                    else if (coordX < 7) begin   // Normal steps
-                        avail_moves[coordX+1][coordY] = 1;
+                    if (coordX < 7) begin   // Normal steps
+                        if (board[coordX+1][coordY][2:0] == EMPTY) begin
+                            avail_moves[coordX+1][coordY] = 1;
+                        end
                         if (coordY > 0) begin   // Left capture
-                            avail_moves[coordX+1][coordY-1] = (board[coordX+1][coordY-1][3] == WHITE && board[coordX-1][coordY-1][2:0] != EMPTY) ? 1 : 0;
+                            if (board[coordX+1][coordY-1][3] == WHITE && board[coordX+1][coordY-1][2:0] != EMPTY) begin
+                                avail_moves[coordX+1][coordY-1] = 1;
+                            end
                         end
                         if (coordY < 7) begin   // Right capture
-                            avail_moves[coordX+1][coordY+1] = (board[coordX+1][coordY+1][3] == WHITE && board[coordX-1][coordY-1][2:0] != EMPTY) ? 1 : 0;
+                            if (board[coordX+1][coordY+1][3] == WHITE && board[coordX+1][coordY+1][2:0] != EMPTY) begin
+                            avail_moves[coordX+1][coordY+1] = 1;
+                            end
                         end
                     end
                 end
             end
             if (board[coordX][coordY][2:0] == BISHOP || board[coordX][coordY][2:0] == QUEEN) begin // done
-                for (i = 0; i <= 7; i = i + 1) begin
-                    for (j = 0; j <= 7; j = j + 1) begin
-                        // Calculate the horizontal and vertical differences
-                        h_delta = j - coordY;
-                        v_delta = i - coordX;
-                        
-                        // Both difference must be equal
-                        if (h_delta == v_delta) begin
-                            if (h_delta < 0 && v_delta < 0) begin   // diagonally up left
-                                if (blocked[4] == 0) begin // previous path not blocked yet
-                                    if (board[i][j][2:0] == 0) begin // ntg at target location
-                                        avail_moves[i][j] = 1;
-                                    end
-                                    else begin // block by a piece
-                                        blocked[4] = 1;
-                                        if (board[i][j][3] != player) begin // if is opponent piece, still viable move
-                                            avail_moves[i][j] = 1;
-                                        end
-                                    end
+                for (i = 1; i <= 7; i = i + 1) begin
+                    // Left Up
+                    curX = coordX - i;
+                    curY = coordY - i;
+                    if (curX >= 0 && curY >= 0) begin
+                        if (blocked[4] == 0) begin // previous path not blocked yet
+                            if (board[curX][curY][2:0] == EMPTY) begin // ntg at target location
+                                avail_moves[curX][curY] = 1;
+                            end
+                            else begin // block by a piece
+                                blocked[4] = 1;
+                                if (board[curX][curY][3] != player) begin // if is opponent piece, still viable move
+                                    avail_moves[curX][curY] = 1;
                                 end
                             end
-                            if (h_delta > 0 && v_delta < 0) begin   // diagonally up right
-                                if (blocked[5] == 0) begin // previous path not blocked yet
-                                    if (board[i][j][2:0] == 0) begin // ntg at target location
-                                        avail_moves[i][j] = 1;
-                                    end
-                                    else begin // block by a piece
-                                        blocked[5] = 1;
-                                        if (board[i][j][3] != player) begin // if is opponent piece, still viable move
-                                            avail_moves[i][j] = 1;
-                                        end
-                                    end
+                        end
+                    end
+                    // Right Up
+                    curX = coordX - i;
+                    curY = coordY + i;
+                    if (curX >= 0 && curY <= 7) begin
+                        if (blocked[5] == 0) begin // previous path not blocked yet
+                            if (board[curX][curY][2:0] == EMPTY) begin // ntg at target location
+                                avail_moves[curX][curY] = 1;
+                            end
+                            else begin // block by a piece
+                                blocked[5] = 1;
+                                if (board[curX][curY][3] != player) begin // if is opponent piece, still viable move
+                                    avail_moves[curX][curY] = 1;
                                 end
                             end
-                            if (h_delta < 0 && v_delta > 0) begin   // diagonally down left
-                                if (blocked[6] == 0) begin // previous path not blocked yet
-                                    if (board[i][j][2:0] == 0) begin // ntg at target location
-                                        avail_moves[i][j] = 1;
-                                    end
-                                    else begin // block by a piece
-                                        blocked[6] = 1;
-                                        if (board[i][j][3] != player) begin // if is opponent piece, still viable move
-                                            avail_moves[i][j] = 1;
-                                        end
-                                    end
+                        end
+                    end
+                    // Left Down
+                    curX = coordX + i;
+                    curY = coordY - i;
+                    if (curX <= 7 && curY >= 0) begin
+                        if (blocked[6] == 0) begin // previous path not blocked yet
+                            if (board[curX][curY][2:0] == EMPTY) begin // ntg at target location
+                                avail_moves[curX][curY] = 1;
+                            end
+                            else begin // block by a piece
+                                blocked[6] = 1;
+                                if (board[curX][curY][3] != player) begin // if is opponent piece, still viable move
+                                    avail_moves[curX][curY] = 1;
                                 end
                             end
-                            if (h_delta > 0 && v_delta > 0) begin   // diagonally down right
-                                if (blocked[7] == 0) begin // previous path not blocked yet
-                                    if (board[i][j][2:0] == 0) begin // ntg at target location
-                                        avail_moves[i][j] = 1;
-                                    end
-                                    else begin // block by a piece
-                                        blocked[7] = 1;
-                                        if (board[i][j][3] != player) begin // if is opponent piece, still viable move
-                                            avail_moves[i][j] = 1;
-                                        end
-                                    end
+                        end
+                    end
+                    // Right Down
+                    curX = coordX + i;
+                    curY = coordY + i;
+                    if (curX <= 7 && curY <= 7) begin
+                        if (blocked[7] == 0) begin // previous path not blocked yet
+                            if (board[curX][curY][2:0] == EMPTY) begin // ntg at target location
+                                avail_moves[curX][curY] = 1;
+                            end
+                            else begin // block by a piece
+                                blocked[7] = 1;
+                                if (board[curX][curY][3] != player) begin // if is opponent piece, still viable move
+                                    avail_moves[curX][curY] = 1;
                                 end
-                            end                         
+                            end
                         end
                     end
                 end
             end
-            if (board[coordX][coordY][2:0] == KNIGHT) begin // done
+            if (board[coordX][coordY][2:0] == KNIGHT) begin // need check whether blocked
                 if (coordX-2 >= 0 && coordY-1 >= 0) begin 
                     avail_moves[coordX-2][coordY-1] = 1; 
                 end
