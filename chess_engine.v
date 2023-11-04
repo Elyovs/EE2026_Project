@@ -24,7 +24,7 @@
 module chess_engine(
     input CLOCK,
     input player,       // 0: white, 1: black
-//    input turn,          // Should change once update finish and new player selected ? dk need anot
+    input turn,          // Should change once update finish and new player selected ? dk need anot
     input [2:0] coordX, coordY,     // range from 0 to 7
     output reg [2:0] old_posX, old_posY, new_posX, new_posY,   // to update chess board in top module   
     output reg moved,         // notify that movement is complete and turn should end
@@ -53,6 +53,7 @@ module chess_engine(
     integer i, j, k, curX, curY;  // variables for for loop
     reg [3:0] h_delta, v_delta; // horizontal and vertical differences
     reg [7:0] blocked; // [3:0] for ROOK, [7:4] for bishop, QUEEN use all
+    reg prev_player = 0; // always start from player 0
     
     // Initiate the chess board
     initial begin
@@ -107,6 +108,11 @@ module chess_engine(
     
     // Main always block
     always @ (posedge CLOCK) begin
+        if (prev_player != player) begin
+            moved = 0;
+            prev_player = player;
+        end
+        
         // Reset blocked for new piece
         blocked = 8'b0;
         // Check if new player turn ?
