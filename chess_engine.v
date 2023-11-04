@@ -29,7 +29,9 @@ module chess_engine(
     output reg [2:0] old_posX, old_posY, new_posX, new_posY,   // to update chess board in top module   
     output reg moved,         // notify that movement is complete and turn should end
     output reg [63:0] avail_moves_out,
-    output reg [3:0] piece_selected
+    output reg [3:0] piece_selected,
+    
+    output reg [1:0] check = 2'b00  // Check[0] = 1 means White get checked
     );
     
     // Constant parameters
@@ -50,9 +52,16 @@ module chess_engine(
     // Variable registers and wires
     reg [3:0] board [0:7] [0:7]; // 8x8 board with 3 bit value in each place o represent pieces
     reg avail_moves [0:7] [0:7]; // 8x8 board for available moves, to be converted into single array
-    integer i, j, k, curX, curY;  // variables for for loop
+    integer i, j, k, curX, curY, play;  // variables for for loop
     reg [3:0] h_delta, v_delta; // horizontal and vertical differences
     reg [7:0] blocked; // [3:0] for ROOK, [7:4] for bishop, QUEEN use all
+    
+    // P
+    
+    reg [0:63] avail [1:0]; // 1: Black, 0: White
+    reg block = 0;
+     
+    //
     
     // Initiate the chess board
     initial begin
@@ -412,6 +421,569 @@ module chess_engine(
                 end
             end
         end
+        
+        
+        /// P
+        
+        for (play = 0; play <= 1; play = play + 1) begin
+        for (i = 0; i <= 7; i = i + 1) begin
+        for (j = 0; j <= 7; j = j + 1) begin
+        
+        case (board[i][j])
+        
+        {play, BISHOP} : begin // Bishop at [i][j]
+        
+            for (k = 1; k <= 7; k = k + 1) begin    
+        
+                if (~((j + k > 7) || (i + k > 7))) begin // Down-Right
+                
+                    if (blocked == 0) begin
+                        if (board[i+k][j+k][2:0] == EMPTY) begin
+                        
+                            avail[play][8*(i+k) + j + k] = 1;
+                                
+                        end
+                        if (board[i+k][j+k][2:0] != EMPTY) begin
+                                                        
+                            if (board[i+k][j+k][3] == play) begin
+                            
+                                block = 1;
+                            end
+                            else begin
+                            
+                                avail[play][8*(i+k) + j + k] = 1;
+                                block = 1;
+                            end
+                                
+                        end
+                    end
+                end
+                
+            end
+            
+            block = 0;
+            
+            for (k = 1; k <= 7; k = k + 1) begin    
+                                
+                if (~((j - k < 0) || (i - k < 0))) begin // Up-Left
+                
+                    if (block == 0) begin
+                        if (board[i-k][j-k][2:0] == EMPTY) begin
+                        
+                            avail[play][8*(i-k) + j - k] = 1;
+                                
+                        end
+                        if (board[i-k][j-k][2:0] != EMPTY) begin
+                                                        
+                            if (board[i-k][j-k][3] == play) begin
+                            
+                                block = 1;
+                            end
+                            else begin
+                            
+                                avail[play][8*(i-k) + j - k] = 1;
+                                block = 1;
+                            end
+                                
+                        end
+                    end
+                end
+                
+            end
+            
+            block = 0;
+            
+            for (k = 1; k <= 7; k = k + 1) begin    
+                                
+                if (~((j - k < 0) || (i + k > 7))) begin // Down-Left
+                
+                    if (block == 0) begin
+                        if (board[i+k][j-k][2:0] == EMPTY) begin
+                        
+                            avail[play][8*(i+k) + j - k] = 1;
+                                
+                        end
+                        if (board[i+k][j-k][2:0] != EMPTY) begin
+                                                        
+                            if (board[i+k][j-k][3] == play) begin
+                            
+                                block = 1;
+                            end
+                            else begin
+                            
+                                avail[play][8*(i+k) + j - k] = 1;
+                                block = 1;
+                            end
+                                
+                        end
+                    end
+                end
+                
+            end
+            
+            block = 0;
+            
+            for (k = 1; k <= 7; k = k + 1) begin    
+                                
+                if (~((j + k > 7) || (i - k < 0))) begin // Up-Right
+                
+                    if (block == 0) begin
+                        if (board[i-k][j+k][2:0] == EMPTY) begin
+                        
+                            avail[play][8*(i-k) + j + k] = 1;
+                                
+                        end
+                        if (board[i-k][j+k][2:0] != EMPTY) begin
+                                                        
+                            if (board[i-k][j+k][3] == play) begin
+                            
+                                block = 1;
+                            end
+                            else begin
+                            
+                                avail[play][8*(i-k) + j + k] = 1;
+                                block = 1;
+                            end
+                                
+                        end
+                    end
+                end
+                
+            end
+            
+            block = 0;
+            
+            
+            
+        end
+        // End of Bishop
+        
+        
+        {play, ROOK}: begin // Rook at [i][j]
+            
+           for (k = 1; k <= 7; k = k + 1) begin
+           
+                if (j + k <= 7) begin // Right
+                    
+                    if (board[i][j + k][2:0] == EMPTY && block == 0) begin // Empty
+                        
+                        avail[play][8*i + j + k] = 1;
+                    end
+                    if (board[i][j + k][2:0] != EMPTY && block == 0) begin
+                    
+                        if (board[i][j + k][3] == play) begin // Own piece block
+                    
+                            block = 1;
+                        end
+                        else begin
+                            // Enemy
+                            avail[play][8*i + j + k] = 1;
+                            block = 1;
+                        end
+                    end
+                end
+                
+           end
+           
+           block = 0;
+           
+           for (k = 1; k <= 7; k = k + 1) begin
+                                  
+                   if (j - k >= 0) begin // Left
+                       
+                       if (board[i][j - k][2:0] == EMPTY && block == 0) begin // Empty
+                           
+                           avail[play][8*i + j - k] = 1;
+                       end
+                       if (board[i][j - k][2:0] != EMPTY && block == 0) begin
+                       
+                           if (board[i][j - k][3] == play) begin // Own piece block
+                       
+                               block = 1;
+                           end
+                           else begin
+                               // Enemy
+                               avail[play][8*i + j - k] = 1;
+                               block = 1;
+                           end
+                       end
+                   end
+                   
+              end
+              
+          block = 0;
+              
+          for (k = 1; k <= 7; k = k + 1) begin
+                                     
+                  if (i + k <= 7) begin // Down
+                      
+                      if (board[i + k][j][2:0] == EMPTY && block == 0) begin // Empty
+                          
+                          avail[play][8*(i+k) + j] = 1;
+                      end
+                      if (board[i + k][j][2:0] != EMPTY && block == 0) begin
+                      
+                          if (board[i + k][j][3] == play) begin // Own piece block
+                      
+                              block = 1;
+                          end
+                          else begin
+                              // Enemy
+                              avail[play][8*(i+k) + j] = 1;
+                              block = 1;
+                          end
+                      end
+                  end
+                  
+             end
+            
+            block = 0;
+            
+            for (k = 1; k <= 7; k = k + 1) begin
+                                                             
+                  if (i - k <= 7) begin // Up
+                      
+                      if (board[i - k][j][2:0] == EMPTY && block == 0) begin // Empty
+                          
+                          avail[play][8*(i-k) + j] = 1;
+                      end
+                      if (board[i - k][j][2:0] != EMPTY && block == 0) begin
+                      
+                          if (board[i - k][j][3] == play) begin // Own piece block
+                      
+                              block = 1;
+                          end
+                          else begin
+                              // Enemy
+                              avail[play][8*(i-k) + j] = 1;
+                              block = 1;
+                          end
+                      end
+                  end
+                  
+             end
+             
+             block = 0;
+        end
+        
+        // End of Rook
+        
+        {play, QUEEN}: begin // Queen at [i][j]
+                                
+           for (k = 1; k <= 7; k = k + 1) begin
+           
+                if (j + k <= 7) begin // Right
+                    
+                    if (board[i][j + k][2:0] == EMPTY && block == 0) begin // Empty
+                        
+                        avail[play][8*i + j + k] = 1;
+                    end
+                    if (board[i][j + k][2:0] != EMPTY && block == 0) begin
+                    
+                        if (board[i][j + k][3] == play) begin // Own piece block
+                    
+                            block = 1;
+                        end
+                        else begin
+                            // Enemy
+                            avail[play][8*i + j + k] = 1;
+                            block = 1;
+                        end
+                    end
+                end
+                
+           end
+           
+           block = 0;
+           
+           for (k = 1; k <= 7; k = k + 1) begin
+                                  
+                   if (j - k >= 0) begin // Left
+                       
+                       if (board[i][j - k][2:0] == EMPTY && block == 0) begin // Empty
+                           
+                           avail[play][8*i + j - k] = 1;
+                       end
+                       if (board[i][j - k][2:0] != EMPTY && block == 0) begin
+                       
+                           if (board[i][j - k][3] == play) begin // Own piece block
+                       
+                               block = 1;
+                           end
+                           else begin
+                               // Enemy
+                               avail[play][8*i + j - k] = 1;
+                               block = 1;
+                           end
+                       end
+                   end
+                   
+              end
+              
+          block = 0;
+              
+          for (k = 1; k <= 7; k = k + 1) begin
+                                     
+                  if (i + k <= 7) begin // Down
+                      
+                      if (board[i + k][j][2:0] == EMPTY && block == 0) begin // Empty
+                          
+                          avail[play][8*(i+k) + j] = 1;
+                      end
+                      if (board[i + k][j][2:0] != EMPTY && block == 0) begin
+                      
+                          if (board[i + k][j][3] == play) begin // Own piece block
+                      
+                              block = 1;
+                              end
+                              else begin
+                                  // Enemy
+                                  avail[play][8*(i+k) + j] = 1;
+                                  block = 1;
+                              
+                            end
+                      end
+                  end
+                  
+             end
+            
+            block = 0;
+            
+            for (k = 1; k <= 7; k = k + 1) begin
+                                                             
+                  if (i - k <= 7) begin // Up
+                      
+                      if (board[i - k][j][2:0] == EMPTY && block == 0) begin // Empty
+                          
+                          avail[play][8*(i-k) + j] = 1;
+                      end
+                      if (board[i - k][j][2:0] != EMPTY && block == 0) begin
+                      
+                          if (board[i - k][j][3] == play) begin // Own piece block
+                      
+                              block = 1;
+                          end
+                          else begin
+                            // Enemy
+                            avail[play][8*(i-k) + j] = 1;
+                            block = 1;
+                            
+                          end
+                      end
+                  end
+                  
+             end
+             
+             block = 0;
+             
+             // Diagonal Part
+             
+             for (k = 1; k <= 7; k = k + 1) begin    
+                                 
+                 if (~((j + k > 7) || (i + k > 7))) begin // Down-Right
+                 
+                     if (block == 0) begin
+                         if (board[i+k][j+k][2:0] == EMPTY) begin
+                         
+                             avail[play][8*(i+k) + j + k] = 1;
+                                 
+                         end
+                         if (board[i+k][j+k][2:0] != EMPTY) begin
+                                                         
+                             if (board[i+k][j+k][3] == play) begin
+                             
+                                 block = 1;
+                             end
+                             else begin
+                             
+                                 avail[play][8*(i+k) + j + k] = 1;
+                                 block = 1;
+                             end
+                                 
+                         end
+                     end
+                 end
+                 
+             end
+             
+             block = 0;
+             
+             for (k = 1; k <= 7; k = k + 1) begin    
+                                 
+                 if (~((j - k < 0) || (i - k < 0))) begin // Up-Left
+                 
+                     if (block == 0) begin
+                         if (board[i-k][j-k][2:0] == EMPTY) begin
+                         
+                             avail[play][8*(i-k) + j - k] = 1;
+                                 
+                         end
+                         if (board[i-k][j-k][2:0] != EMPTY) begin
+                                                         
+                             if (board[i-k][j-k][3] == play) begin
+                             
+                                 block = 1;
+                             end
+                             else begin
+                             
+                                 avail[play][8*(i-k) + j - k] = 1;
+                                 block = 1;
+                             end
+                                 
+                         end
+                     end
+                 end
+                 
+             end
+             
+             block = 0;
+             
+             for (k = 1; k <= 7; k = k + 1) begin    
+                                 
+                 if (~((j - k < 0) || (i + k > 7))) begin // Down-Left
+                 
+                     if (block == 0) begin
+                         if (board[i+k][j-k][2:0] == EMPTY) begin
+                         
+                             avail[play][8*(i+k) + j - k] = 1;
+                                 
+                         end
+                         if (board[i+k][j-k][2:0] != EMPTY) begin
+                                                         
+                             if (board[i+k][j-k][3] == play) begin
+                             
+                                 block = 1;
+                             end
+                             else begin
+                             
+                                 avail[play][8*(i+k) + j - k] = 1;
+                                 block = 1;
+                             end
+                                 
+                         end
+                     end
+                 end
+                 
+             end
+             
+             block = 0;
+             
+             for (k = 1; k <= 7; k = k + 1) begin    
+                                 
+                 if (~((j + k > 7) || (i - k < 0))) begin // Up-Right
+                 
+                     if (block == 0) begin
+                         if (board[i-k][j+k][2:0] == EMPTY) begin
+                         
+                             avail[play][8*(i-k) + j + k] = 1;
+                                 
+                         end
+                         if (board[i-k][j+k][2:0] != EMPTY) begin
+                                                         
+                             if (board[i-k][j+k][3] == play) begin
+                             
+                                 block = 1;
+                             end
+                             else begin
+                             
+                                 avail[play][8*(i-k) + j + k] = 1;
+                                 block = 1;
+                             end
+                                 
+                         end
+                     end
+                 end
+                 
+             end
+             
+             block = 0;
+             
+             
+             
+         end
+                            
+        // End of Queen
+        
+        {play, KNIGHT}: begin
+        
+            // Up L
+            if ((i-2) >= 0 || (j-1) >= 0) begin
+            
+                avail[play][8*(i-2) + j - 1] = 1;
+            end
+            // Up R
+            if (~((i-2) < 0 || (j+1) > 7)) begin
+                                    
+                avail[play][8*(i-2) + j + 1] = 1;
+            end
+            // Down L
+            if (~((i+2) > 7 || (j-1) < 0)) begin
+                                    
+                avail[play][8*(i+2) + j - 1] = 1;
+            end
+            // Down R
+            if (~((i+2) > 7 || (j+1) > 7)) begin
+                                    
+                avail[play][8*(i+2) + j + 1] = 1;
+            end
+            // L Up
+            if (~((i-1) < 0 || (j-2) < 0)) begin
+                                    
+                avail[play][8*(i-1) + j - 2] = 1;
+            end
+            // L Down
+            if (~((i+1) > 7 || (j-2) < 0)) begin
+                                                        
+                avail[play][8*(i+1) + j - 2] = 1;
+            end
+            // R Up
+            if (~((i-1) < 0 || (j+2) > 7)) begin
+                                                            
+                avail[play][8*(i-1) + j + 2] = 1;
+            end
+            // R Down
+            if (~((i+1) > 7 || (j+2) > 7)) begin
+                                                            
+                avail[play][8*(i+1) + j + 2] = 1;
+            end
+        
+        end
+        // End of Knight   
+        
+        
+        
+        
+        endcase
+        
+        end
+        end
+        
+        end
+        
+        for (i = 0; i <= 7; i = i + 1) begin
+            for (j = 0; j <= 7; j = j + 1) begin
+            
+                if (board[i][j][2:0] == KING) begin
+            
+                    if (board[i][j][3] == 0 & avail[1][i*8 + j] == 1) begin // White checked
+                    
+                        check[0] = 1;
+                    
+                    end
+                    if (board[i][j][3] == 1 & avail[0][i*8 + j] == 1) begin // Black checked
+                                        
+                        check[1] = 1;
+                    
+                    end
+                end
+            end
+        end
+                
+                
+        
+        
+        
+        ///
     end
     
     
