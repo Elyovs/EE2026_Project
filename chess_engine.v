@@ -47,8 +47,8 @@ module chess_engine(
     // eg. board[0][0][2:0] = PAWN;
     
     // Variable registers and wires
-    reg [3:0] board [7:0] [7:0]; // 8x8 board with 3 bit value in each place o represent pieces
-    reg avail_moves [7:0] [7:0]; // 8x8 board for available moves, to be converted into single array
+    reg [3:0] board [0:7] [0:7]; // 8x8 board with 3 bit value in each place o represent pieces
+    reg avail_moves [0:7] [0:7]; // 8x8 board for available moves, to be converted into single array
     integer i, j, k;  // variables for for loop
     reg [3:0] h_delta, v_delta; // horizontal and vertical differences
     reg [7:0] blocked; // [3:0] for ROOK, [7:4] for bishop, QUEEN use all
@@ -107,6 +107,8 @@ module chess_engine(
     
     // Main always block
     always @ (posedge CLOCK) begin
+        // Reset blocked for new piece
+        blocked = 8'b0;
         // Check if new player turn ?
         // Selected your piece
         if (board[coordX][coordY][2:0] != EMPTY && board[coordX][coordY][3] == player) begin
@@ -114,8 +116,6 @@ module chess_engine(
             piece_selected = board[coordX][coordY];
             old_posX = coordX;
             old_posY = coordY;
-            // Reset blocked for new piece
-            blocked = 8'b0;
             // Reset available moves matrix
             for (i = 0; i <= 7; i = i + 1) begin
                 for (j = 0; j <= 7; j = j + 1) begin
@@ -244,62 +244,78 @@ module chess_engine(
                     avail_moves[coordX+2][coordY+1] = 1; 
                 end
             end 
-//            
+            
             if (board[coordX][coordY][2:0] == ROOK || board[coordX][coordY][2:0] == QUEEN) begin // done
+                // For computing down and right
                 for (i = 0; i <= 7; i = i + 1) begin
                     for (j = 0; j <= 7; j = j + 1) begin
                         // Calculate the horizontal and vertical differences
                         h_delta = j - coordY;
                         v_delta = i - coordX;
-                        blocked [3:0] = 4'b0;
                         
                         // If either one zero means same row or same col
                         if (h_delta == 0 ^ v_delta == 0) begin // if both zero no move cannot
-                            if (v_delta < 0) begin // up
-                                for (k = i + 1; k < coordX; k = k + 1) begin    // check whether path got block
-                                    if (board[k][j][2:0] != 0) begin    // found smtg block
-                                        blocked[0] = 1;
-                                    end
-                                end
-                                if (blocked[0] != 0) begin  // prev path not blocked
-                                    if ((board[i][j][2:0] == 0) || (board[i][j][2:0] != 0 && board[i][j][3] != player)) begin   // current is empty or current is opponent's piece
+                            if (v_delta > 0) begin  // down
+                                if (blocked[1] == 0) begin // previous path not blocked yet
+                                    if (board[i][j][2:0] == 0) begin // ntg at target location
                                         avail_moves[i][j] = 1;
-                                    end
-                                end
-                            end
-                            else if (v_delta > 0) begin  // down
-                                for (k = i - 1; k > coordX; k = k - 1) begin    // check whether path got block
-                                    if (board[k][j][2:0] != 0) begin    // found smtg block
+                                    end 
+                                    else begin // block by a piece
                                         blocked[1] = 1;
-                                    end
-                                end
-                                if (blocked[1] != 0) begin  // prev path not blocked
-                                    if ((board[i][j][2:0] == 0) || (board[i][j][2:0] != 0 && board[i][j][3] != player)) begin   // current is empty or current is opponent's piece
-                                        avail_moves[i][j] = 1;
-                                    end
-                                end
-                            end
-                            else if (h_delta < 0) begin  // left
-                                for (k = j + 1; k < coordX; k = k + 1) begin    // check whether path got block
-                                    if (board[i][k][2:0] != 0) begin    // found smtg block
-                                        blocked[2] = 1;
-                                    end
-                                end
-                                if (blocked[2] != 0) begin  // prev path not blocked
-                                    if ((board[i][j][2:0] == 0) || (board[i][j][2:0] != 0 && board[i][j][3] != player)) begin   // current is empty or current is opponent's piece
-                                        avail_moves[i][j] = 1;
+                                        if (board[i][j][3] != player) begin // if is opponent piece, still viable move
+                                            avail_moves[i][j] = 1;
+                                        end
                                     end
                                 end
                             end
                             else if (h_delta > 0) begin  // right
-                                for (k = j - 1; k > coordX; k = k - 1) begin    // check whether path got block
-                                    if (board[i][k][2:0] != 0) begin    // found smtg block
+                                if (blocked[3] == 0) begin // previous path not blocked yet
+                                    if (board[i][j][2:0] == 0) begin // ntg at target location
+                                        avail_moves[i][j] = 1;
+                                    end 
+                                    else begin // block by a piece
                                         blocked[3] = 1;
+                                        if (board[i][j][3] != player) begin // if is opponent piece, still viable move
+                                            avail_moves[i][j] = 1;
+                                        end
                                     end
                                 end
-                                if (blocked[3] != 0) begin  // prev path not blocked
-                                    if ((board[i][j][2:0] == 0) || (board[i][j][2:0] != 0 && board[i][j][3] != player)) begin   // current is empty or current is opponent's piece
+                            end
+                        end
+                    end
+                end
+                // For computing up and left
+                for (i = 7; i >= 0; i = i - 1) begin
+                    for (j = 7; j >= 0; j = j - 1) begin
+                        // Calculate the horizontal and vertical differences
+                        h_delta = j - coordY;
+                        v_delta = i - coordX;
+                        
+                        // If either one zero means same row or same col
+                        if (h_delta == 0 ^ v_delta == 0) begin // if both zero no move cannot
+                            if (v_delta < 0) begin // up
+                                if (blocked[0] == 0) begin // previous path not blocked yet
+                                    if (board[i][j][2:0] == EMPTY) begin // ntg at target location
                                         avail_moves[i][j] = 1;
+                                    end 
+                                    else begin // block by a piece
+                                        blocked[0] = 1;
+                                        if (board[i][j][3] != player) begin // if is opponent piece, still viable move
+                                            avail_moves[i][j] = 1;
+                                        end
+                                    end
+                                end
+                            end
+                            else if (h_delta < 0) begin  // left
+                                if (blocked[2] == 0) begin // previous path not blocked yet
+                                    if (board[i][j][2:0] == EMPTY) begin // ntg at target location
+                                        avail_moves[i][j] = 1;
+                                    end 
+                                    else begin // block by a piece
+                                        blocked[2] = 1;
+                                        if (board[i][j][3] != player) begin // if is opponent piece, still viable move
+                                            avail_moves[i][j] = 1;
+                                        end
                                     end
                                 end
                             end
