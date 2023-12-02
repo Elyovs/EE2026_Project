@@ -1,0 +1,196 @@
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+----------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.2 (win64) Build 2258646 Thu Jun 14 20:03:12 MDT 2018
+| Date         : Tue Nov  7 16:32:01 2023
+| Host         : David running 64-bit major release  (build 9200)
+| Command      : report_control_sets -verbose -file Top_Student_control_sets_placed.rpt
+| Design       : Top_Student
+| Device       : xc7a35t
+----------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Number of unique control sets                            |   125 |
+| Unused register locations in slices containing registers |   130 |
++----------------------------------------------------------+-------+
+
+
+2. Histogram
+------------
+
++--------+--------------+
+| Fanout | Control Sets |
++--------+--------------+
+|      2 |            7 |
+|      4 |            1 |
+|      6 |            3 |
+|      8 |           71 |
+|     10 |            3 |
+|     12 |            2 |
+|     14 |            2 |
+|    16+ |           36 |
++--------+--------------+
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |            1632 |          430 |
+| No           | No                    | Yes                    |               0 |            0 |
+| No           | Yes                   | No                     |             880 |          120 |
+| Yes          | No                    | No                     |             414 |           77 |
+| Yes          | No                    | Yes                    |               0 |            0 |
+| Yes          | Yes                   | No                     |             784 |          196 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++------------------+---------------------------------------------------------------+---------------------------------------------------------------+------------------+----------------+
+|   Clock Signal   |                         Enable Signal                         |                        Set/Reset Signal                       | Slice Load Count | Bel Load Count |
++------------------+---------------------------------------------------------------+---------------------------------------------------------------+------------------+----------------+
+|  bool_moved_BUFG |                                                               |                                                               |                1 |              2 |
+|  clk             |                                                               |                                                               |                1 |              2 |
+|  out_clk         | main_menu/led[6]_i_2_n_0                                      | main_menu/led[6]_i_1_n_0                                      |                1 |              2 |
+| ~clk_6p25_BUFG   |                                                               |                                                               |                1 |              2 |
+|  out_clk         | main_menu/led[2]_i_1_n_0                                      | main_menu/led[6]_i_1_n_0                                      |                1 |              2 |
+|  out_clk         | main_menu/led[0]_i_1_n_0                                      | main_menu/led[6]_i_1_n_0                                      |                1 |              2 |
+|  out_clk         | main_menu/p_1_out[1]                                          | main_menu/p_1_out0_in[1]                                      |                1 |              2 |
+|  out_clk         | main_menu/an0_in[1]                                           | main_menu/seg[1]_i_1_n_0                                      |                1 |              4 |
+|  clock_IBUF_BUFG | visuals/mouse1/E[1]                                           |                                                               |                1 |              6 |
+|  out_clk         | main_menu/seg[5]_i_2_n_0                                      | main_menu/seg[5]_i_1_n_0                                      |                1 |              6 |
+|  clock_IBUF_BUFG | visuals/mouse1/E[0]                                           |                                                               |                1 |              6 |
+|  clock_IBUF_BUFG | visuals/board_reg[4][0][3][0]                                 | chess_moves/board[4][0][3]_i_1_n_0                            |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[4][2][3][0]                                 | chess_moves/board[4][2][3]_i_1_n_0                            |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[4][7][3][0]                                 | chess_moves/board[4][7][3]_i_1_n_0                            |                4 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[5][2][3][0]                                 | chess_moves/board[5][2][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[1][3][3][0]                                 | chess_moves/board[1][3][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[1][7][0]_0[0]                               | chess_moves/board[1][7][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[2][1][3][0]                                 | chess_moves/board[2][1][3]_i_1_n_0                            |                4 |              8 |
+|  clk_0p5s        | end_g/q2_x[4]_i_2_n_0                                         | end_g/q2_x[4]_i_1_n_0                                         |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[1][6][3][0]                                 | chess_moves/board[1][6][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[0][3][3][0]                                 | chess_moves/board[0][3][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[0][4][3][0]                                 | chess_moves/board[0][4][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[1][0][3][0]                                 | chess_moves/board[1][0][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[3][3][3][0]                                 | chess_moves/board[3][3][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[2][5][3][0]                                 | chess_moves/board[2][5][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[4][4][3][0]                                 | chess_moves/board[4][4][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[5][0][3][0]                                 | chess_moves/board[5][0][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[7][6][3][0]                                 | chess_moves/board[7][6][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[7][3][3][0]                                 | chess_moves/board[7][3][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG |                                                               | visuals/mouse1/Inst_Ps2Interface/data_inter0                  |                1 |              8 |
+|  clock_IBUF_BUFG |                                                               | visuals/mouse1/Inst_Ps2Interface/clk_inter0                   |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[7][0][3][0]                                 | chess_moves/board[7][0][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[6][3][3][0]                                 | chess_moves/board[6][3][3]_i_1_n_0                            |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[7][2][3][0]                                 | chess_moves/board[7][2][3]_i_1_n_0                            |                4 |              8 |
+|  clock_IBUF_BUFG |                                                               | chess_moves/blocked[3]_i_1_n_0                                |                2 |              8 |
+|  clock_IBUF_BUFG |                                                               | chess_moves/blocked[7]_i_1_n_0                                |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[6][7][3][0]                                 | chess_moves/board[6][7][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[7][1][3]_0[0]                               | chess_moves/board[7][1][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[6][0][3]_0[0]                               | chess_moves/board[6][0][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[7][5][3][0]                                 | chess_moves/board[7][5][3]_i_1_n_0                            |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[7][7][3]_1[0]                               | chess_moves/board[7][7][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[6][1][3][0]                                 | chess_moves/board[6][1][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[6][5][3]_0[0]                               | chess_moves/board[6][5][3]_i_1_n_0                            |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[7][4][3]_1[0]                               | chess_moves/board[7][4][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[6][2][3]_0[0]                               | chess_moves/board[6][2][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[6][6][3][0]                                 | chess_moves/board[6][6][3]_i_1_n_0                            |                2 |              8 |
+|  out_clk         |                                                               | main_menu/idxToCoord_unit/oled_data_reg[6]                    |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[6][4][3][0]                                 | chess_moves/board[6][4][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/mouse1/Inst_Ps2Interface/shift_frame                  | visuals/mouse1/Inst_Ps2Interface/reset_bit_count              |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[3][6][3][0]                                 | chess_moves/board[3][6][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[1][4][3][0]                                 | chess_moves/board[1][4][3]_i_1_n_0                            |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[5][1][3][0]                                 | chess_moves/board[5][1][3]_i_1_n_0                            |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[1][2][3][0]                                 | chess_moves/board[1][2][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[5][3][3][0]                                 | chess_moves/board[5][3][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[2][4][3][0]                                 | chess_moves/board[2][4][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[3][1][3][0]                                 | chess_moves/board[3][1][3]_i_1_n_0                            |                4 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[1][5][3][0]                                 | chess_moves/board[1][5][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[4][1][3]_0[0]                               | chess_moves/board[4][1][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[4][6][3][0]                                 | chess_moves/board[4][6][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[4][5][3][0]                                 | chess_moves/board[4][5][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[2][3][3][0]                                 | chess_moves/board[2][3][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[3][2][3][0]                                 | chess_moves/board[3][2][3]_i_1_n_0                            |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[4][3][3][0]                                 | chess_moves/board[4][3][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[5][4][3][0]                                 | chess_moves/board[5][4][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[0][0][3]_0[0]                               | chess_moves/board[0][0][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[5][5][3][0]                                 | chess_moves/board[5][5][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[0][2][3][0]                                 | chess_moves/board[0][2][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[5][6][3][0]                                 | chess_moves/board[5][6][3]_i_1_n_0                            |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[5][7][3][0]                                 | chess_moves/board[5][7][3]_i_1_n_0                            |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[0][1][3][0]                                 | chess_moves/board[0][1][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[0][7][3][0]                                 | chess_moves/board[0][7][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[1][1][3][0]                                 | chess_moves/board[1][1][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[2][2][3][0]                                 | chess_moves/board[2][2][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[2][6][3][0]                                 | chess_moves/board[2][6][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[0][6][3][0]                                 | chess_moves/board[0][6][3]_i_1_n_0                            |                4 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[2][0][3]_1[0]                               | chess_moves/board[2][0][3]_i_1_n_0                            |                3 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[3][0][3][0]                                 | chess_moves/board[3][0][3]_i_1_n_0                            |                4 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[2][7][3][0]                                 | chess_moves/board[2][7][3]_i_1_n_0                            |                4 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[0][5][3][0]                                 | chess_moves/board[0][5][3]_i_1_n_0                            |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[3][4][3][0]                                 | chess_moves/board[3][4][3]_i_1_n_0                            |                1 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[3][5][3][0]                                 | chess_moves/board[3][5][3]_i_1_n_0                            |                2 |              8 |
+|  clock_IBUF_BUFG | visuals/board_reg[3][7][3]_0[0]                               | chess_moves/board[3][7][3]_i_1_n_0                            |                3 |              8 |
+|  clk_0p5s        | end_g/s6_x[6]_i_1_n_0                                         | end_g/q2_x[4]_i_1_n_0                                         |                4 |             10 |
+|  out_clk         | main_menu/seg[6]_i_2_n_0                                      | main_menu/seg[6]_i_1_n_0                                      |                1 |             10 |
+|  clock_IBUF_BUFG | visuals/mouse1/Inst_Ps2Interface/left_down_reg                |                                                               |                1 |             10 |
+|  clk_0p5s        | end_g/s5_x[6]_i_1_n_0                                         |                                                               |                3 |             12 |
+|  clock_IBUF_BUFG | bool_moved_BUFG                                               |                                                               |                5 |             12 |
+|  clk_0p5s        |                                                               | end_g/s4_y[2]_i_1_n_0                                         |                2 |             14 |
+|  clock_IBUF_BUFG | visuals/mouse1/Inst_Ps2Interface/delay_63clk_count[6]_i_2_n_0 | visuals/mouse1/Inst_Ps2Interface/delay_63clk_count[6]_i_1_n_0 |                3 |             14 |
+|  clock_IBUF_BUFG | visuals/avail_moves_reg[7][7]_3                               |                                                               |                6 |             16 |
+|  clock_IBUF_BUFG | visuals/mouse1/Inst_Ps2Interface/load_rx_data                 |                                                               |                2 |             16 |
+|  clock_IBUF_BUFG | visuals/mouse1/write_data                                     |                                                               |                2 |             16 |
+|  clock_IBUF_BUFG | visuals/mouse1/Inst_Ps2Interface/y_inc_reg[0]                 |                                                               |                2 |             16 |
+|  clock_IBUF_BUFG | visuals/mouse1/Inst_Ps2Interface/x_inc_reg[0]                 |                                                               |                1 |             16 |
+|  clk_0p5s        |                                                               |                                                               |                3 |             20 |
+|  clock_IBUF_BUFG | chess_moves/moved1                                            |                                                               |                9 |             20 |
+|  clock_IBUF_BUFG | visuals/mouse1/Inst_Ps2Interface/frame[9]_i_1_n_0             |                                                               |                2 |             20 |
+|  clock_IBUF_BUFG | visuals/mouse1/Inst_Ps2Interface/delay_20us_count[10]_i_2_n_0 | visuals/mouse1/Inst_Ps2Interface/delay_20us_count[10]_i_1_n_0 |                3 |             22 |
+|  clock_IBUF_BUFG | visuals/mouse1/y_new_reg_n_0                                  |                                                               |                4 |             24 |
+|  clock_IBUF_BUFG | visuals/mouse1/x_new_reg_n_0                                  |                                                               |                4 |             24 |
+|  clk_0p5s        |                                                               | end_g/count_winner[12]_i_1_n_0                                |                4 |             26 |
+|  clock_IBUF_BUFG | unit_oled_A/oled_data0                                        | visuals/mouse1/oled_data_reg[13]_6                            |                8 |             26 |
+|  clock_IBUF_BUFG | visuals/mouse1/Inst_Ps2Interface/delay_100us_count[0]_i_2_n_0 | visuals/mouse1/Inst_Ps2Interface/clear                        |                4 |             28 |
+|  out_clk         |                                                               |                                                               |                9 |             30 |
+|  clock_IBUF_BUFG | visuals/E[0]                                                  |                                                               |               12 |             32 |
+|  clk_6p25_BUFG   |                                                               |                                                               |                8 |             32 |
+| ~clk_6p25_BUFG   |                                                               | unit_oled_A/frame_counter[16]_i_1_n_0                         |                4 |             34 |
+| ~clk_6p25_BUFG   | unit_oled_A/delay[0]_i_1_n_0                                  |                                                               |                5 |             40 |
+|  clock_IBUF_BUFG |                                                               | visuals/mouse1/reset_timeout_cnt_reg_n_0                      |                6 |             48 |
+|  clock_IBUF_BUFG |                                                               | visuals/mouse1/reset_periodic_check_cnt__0                    |                6 |             52 |
+|  clock_IBUF_BUFG |                                                               | visuals/clear                                                 |                8 |             64 |
+|  clock_IBUF_BUFG |                                                               | turns/count_1m[0]_i_1_n_0                                     |                8 |             64 |
+| ~clk_6p25_BUFG   | unit_oled_A/state                                             |                                                               |                9 |             64 |
+|  clk             |                                                               | main_menu/clear                                               |                8 |             64 |
+|  clk             | main_menu/count_2s[0]_i_1_n_0                                 |                                                               |                8 |             64 |
+|  clk             | main_menu/sel                                                 | main_menu/count_seg_2[0]_i_1_n_0                              |                8 |             64 |
+|  clock_IBUF_BUFG | visuals/count_x                                               | visuals/count_x[0]_i_1_n_0                                    |                8 |             64 |
+|  clock_IBUF_BUFG |                                                               | turns/count[31]_i_1_n_0                                       |                9 |             64 |
+|  clk             |                                                               | main_menu/count_0p5s[0]_i_1_n_0                               |                8 |             64 |
+|  clock_IBUF_BUFG |                                                               | main_menu/clk6p25m/count[0]_i_1_n_0                           |                8 |             64 |
+|  clock_IBUF_BUFG |                                                               | clk6p25m/clear                                                |                8 |             64 |
+|  clock_IBUF_BUFG |                                                               | end_g/clk0p5s/clear                                           |                8 |             64 |
+|  clock_IBUF_BUFG |                                                               | main_menu/clk0p005s/count[0]_i_1__0_n_0                       |                8 |             64 |
+| ~clk_6p25_BUFG   |                                                               | unit_oled_A/spi_word[39]_i_1_n_0                              |               17 |             90 |
+|  clock_IBUF_BUFG |                                                               |                                                               |              407 |           1544 |
++------------------+---------------------------------------------------------------+---------------------------------------------------------------+------------------+----------------+
+
+
